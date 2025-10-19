@@ -168,3 +168,25 @@ def obtenir_coachs():
                    ORDER BY user_name ASC"""
             )
             return curseur.fetchall()
+
+def obtenir_conversations_utilisateur(user_id):
+    query = """
+    SELECT 
+        u.id, u.user_name, u.image,
+        m.contenu AS dernier_message,
+        m.date_envoi AS date_message,
+        SUM(CASE WHEN m.destinataire_id = %(id)s AND m.lu = 0 THEN 1 ELSE 0 END) AS non_lus
+    FROM messages m
+    JOIN utilisateur u 
+        ON (u.id = CASE 
+            WHEN m.expediteur_id = %(id)s THEN m.destinataire_id 
+            ELSE m.expediteur_id END)
+    WHERE m.expediteur_id = %(id)s OR m.destinataire_id = %(id)s
+    GROUP BY u.id, u.user_name, u.image
+    ORDER BY date_message DESC;
+    """
+    
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(query, {'id': user_id})
+            return curseur.fetchall()
