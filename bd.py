@@ -173,17 +173,16 @@ def obtenir_conversations_utilisateur(user_id):
     query = """
     SELECT 
         u.id, u.user_name, u.image,
-        m.contenu AS dernier_message,
-        m.date_envoi AS date_message,
-        SUM(CASE WHEN m.destinataire_id = %(id)s AND m.lu = 0 THEN 1 ELSE 0 END) AS non_lus
-    FROM messages m
+        mp.contenu AS dernier_message,
+        mp.date_envoi AS date_message
+    FROM message_prive mp
     JOIN utilisateur u 
         ON (u.id = CASE 
-            WHEN m.expediteur_id = %(id)s THEN m.destinataire_id 
-            ELSE m.expediteur_id END)
-    WHERE m.expediteur_id = %(id)s OR m.destinataire_id = %(id)s
-    GROUP BY u.id, u.user_name, u.image
-    ORDER BY date_message DESC;
+            WHEN mp.expediteur_id = %(id)s THEN mp.destinataire_id 
+            ELSE mp.expediteur_id END)
+    WHERE mp.expediteur_id = %(id)s OR mp.destinataire_id = %(id)s
+    GROUP BY u.id, u.user_name, u.image, mp.contenu, mp.date_envoi
+    ORDER BY mp.date_envoi DESC;
     """
     
     with creer_connexion() as conn:

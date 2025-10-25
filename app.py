@@ -6,6 +6,7 @@ from accueil import bp as acceuil_bp
 from forum import forum_bp as forum_bp
 from compte import bp_compte
 from coach import bp_coach
+from message import message_bp
 import os
 
 app = Flask(__name__)
@@ -15,6 +16,7 @@ app.register_blueprint(bp_compte)
 app.register_blueprint(acceuil_bp)
 app.register_blueprint(forum_bp)
 app.register_blueprint(bp_coach)
+app.register_blueprint(message_bp)
 @app.route('/')
 def home():
         return render_template("accueil.jinja")
