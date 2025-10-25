@@ -1,0 +1,31 @@
+{% extends "base.jinja" %}
+
+{% block title %} - Conversation{% endblock %}
+
+{% block content %}
+<h2>Conversation avec {{ destinataire.user_name }}</h2>
+
+<div class="border rounded p-3 mb-3" style="max-height: 500px; overflow-y: auto;">
+    {% for msg in messages %}
+        <div class="mb-2 {% if msg.expediteur_id == session['user_id'] %}text-end{% endif %}">
+            <div class="d-inline-block p-2 rounded 
+                        {% if msg.expediteur_id == session['user_id'] %}
+                            bg-primary text-white
+                        {% else %}
+                            bg-light
+                        {% endif %}">
+                {{ msg.contenu }}
+            </div>
+            <br>
+            <small class="text-muted">{{ msg.date_envoi }}</small>
+        </div>
+    {% endfor %}
+</div>
+
+<form method="POST" class="mt-3">
+    <div class="input-group">
+        <input type="text" name="contenu" class="form-control" placeholder="Écrivez un message..." required>
+        <button type="submit" class="btn btn-primary">Envoyer</button>
+    </div>
+</form>
+{% endblock %}
