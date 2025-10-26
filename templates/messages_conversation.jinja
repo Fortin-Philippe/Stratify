@@ -1,31 +1,30 @@
 {% extends "base.jinja" %}
 
-{% block title %} - Conversation{% endblock %}
+{% block title %}Conversation avec {{ autre_user.user_name }}{% endblock %}
 
 {% block content %}
-<h2>Conversation avec {{ destinataire.user_name }}</h2>
-
-<div class="border rounded p-3 mb-3" style="max-height: 500px; overflow-y: auto;">
-    {% for msg in messages %}
-        <div class="mb-2 {% if msg.expediteur_id == session['user_id'] %}text-end{% endif %}">
-            <div class="d-inline-block p-2 rounded 
-                        {% if msg.expediteur_id == session['user_id'] %}
-                            bg-primary text-white
-                        {% else %}
-                            bg-light
-                        {% endif %}">
-                {{ msg.contenu }}
-            </div>
-            <br>
-            <small class="text-muted">{{ msg.date_envoi }}</small>
+<div class="container mt-4">
+    <h3>Conversation avec {{ autre_user.user_name }}</h3>
+    <div class="card mt-3">
+        <div class="card-body" style="height: 400px; overflow-y: auto;">
+            {% for msg in messages %}
+                <div class="mb-3 {% if msg.expediteur_id == session.user_id %}text-end{% endif %}">
+                    <div class="d-inline-block p-2 {% if msg.expediteur_id == session.user_id %}bg-primary text-white{% else %}bg-light{% endif %} rounded">
+                        <strong>{{ msg.expediteur_nom }}</strong><br>
+                        {{ msg.contenu }}
+                        <div><small class="text-muted">{{ msg.date_envoi }}</small></div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-    {% endfor %}
-</div>
-
-<form method="POST" class="mt-3">
-    <div class="input-group">
-        <input type="text" name="contenu" class="form-control" placeholder="Écrivez un message..." required>
-        <button type="submit" class="btn btn-primary">Envoyer</button>
+        <div class="card-footer">
+            <form method="POST">
+                <div class="input-group">
+                    <input type="text" name="contenu" class="form-control" placeholder="Écrire un message..." required>
+                    <button type="submit" class="btn btn-primary">Envoyer</button>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
+</div>
 {% endblock %}

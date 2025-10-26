@@ -1,31 +1,29 @@
 {% extends "base.jinja" %}
 
-{% block title %} - Conversations{% endblock %}
+{% block title %}Vos Conversations{% endblock %}
 
 {% block content %}
-<h2>Vos conversations</h2>
-
-{% if conversations %}
-    <ul class="list-group">
-        {% for conv in conversations %}
-        <li class="list-group-item d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center">
-                {% if conv.image %}
-                <img src="{{ url_for('static', filename='uploads/' ~ conv.image) }}" 
-                     alt="Photo de profil" class="rounded-circle me-3" width="40" height="40">
-                {% endif %}
-                <div>
-                    <strong>{{ conv.user_name }}</strong><br>
-                    <small>{{ conv.dernier_message[:50] }}{% if conv.dernier_message|length > 50 %}...{% endif %}</small>
-                </div>
-            </div>
-            <a href="{{ url_for('message.conversation', destinataire_id=conv.id) }}" class="btn btn-sm btn-primary">
-                Ouvrir
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Aucune conversation privée pour le moment.</p>
-{% endif %}
+<div class="container mt-4">
+    <h2 class="mb-4">Vos Conversations</h2>
+    {% if conversations %}
+        <ul class="list-group">
+            {% for conv in conversations %}
+                <li class="list-group-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        {% if conv.image %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ conv.image) }}" width="50" height="50" class="rounded-circle me-3">
+                        {% endif %}
+                        <div>
+                            <strong>{{ conv.user_name }}</strong><br>
+                            <small>{{ conv.dernier_message or "Aucun message" }}</small>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('message.conversation', autre_id=conv.id) }}" class="btn btn-primary btn-sm">Ouvrir</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune conversation trouvée.</p>
+    {% endif %}
+</div>
 {% endblock %}

@@ -12,3 +12,20 @@ def liste_conversations():
 
     conversations = bd.obtenir_conversations_utilisateur(user_id)
     return render_template('messages_liste.jinja', conversations=conversations)
+
+@message_bp.route("/conversation/<int:autre_id>", methods=["GET", "POST"])
+def conversation(autre_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        flash("Veuillez vous connecter pour envoyer un message.", "warning")
+        return redirect(url_for('compte.connexion'))
+
+    if request.method == "POST":
+        contenu = request.form.get("contenu")
+        if contenu:
+            bd.envoyer_message_prive(user_id, autre_id, contenu)
+            return redirect(url_for("message.conversation", autre_id=autre_id))
+
+    messages = bd.obtenir_messages_prives(user_id, autre_id)
+    autre_user = bd.get_utilisateur_par_id(autre_id)
+    return render_template("messages_conversation.jinja", messages=messages, autre_user=autre_user)
