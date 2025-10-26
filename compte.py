@@ -14,7 +14,7 @@ bp_compte = Blueprint('compte', __name__)
 
 @bp_compte.route('/creer-utilisateur', methods=['GET', 'POST'])
 def form_utilisateur():
-
+    jeux = bd.obtenir_jeux()
     erreurs = {}
     if request.method == 'POST':
         user_name = request.form['user_name'].strip()
@@ -55,6 +55,8 @@ def form_utilisateur():
         }
 
         user_id = bd.ajouter_utilisateur(utilisateur)
+        jeux_selectionnes = request.form.getlist('jeux')
+        bd.ajouter_jeux_utilisateur(user_id, jeux_selectionnes)
         session.permanent = True
         session['user_id'] = user_id
         session['user_name'] = utilisateur['user_name']
@@ -64,7 +66,7 @@ def form_utilisateur():
         flash("Utilisateur créé avec succès !", "success")
         return redirect(url_for('accueil.choisir_jeu'))
 
-    return render_template("form-utilisateur.jinja", erreurs=erreurs)
+    return render_template("form-utilisateur.jinja", erreurs=erreurs, jeux=jeux)
 
 @bp_compte.route('/connexion', methods=['GET', 'POST'])
 def connexion():
