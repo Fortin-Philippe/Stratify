@@ -23,8 +23,22 @@
                     <div class="text-danger">{{ erreurs.courriel }}</div>
                     {% endif %}
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Jeux préférés</label>
+                    <div class="form-check">
+                        {% for jeu in jeux %}
+                        <div>
+                            <input class="form-check-input" type="checkbox" name="jeux" id="jeu-{{ jeu.id }}"
+                                value="{{ jeu.id }}">
+                            <label class="form-check-label" for="jeu-{{ jeu.id }}">
+                                {{ jeu.nom }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
 
-                 <div class="mb-3">
+                <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
                     <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                 </div>
@@ -51,4 +65,3 @@
     </div>
 </div>
 {% endblock %}
-

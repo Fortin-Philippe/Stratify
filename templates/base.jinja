@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Stratify{% block title %}{% endblock %}</title>
     <link rel="icon" href="https://www.cegepgarneau.ca/favicon.ico">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/lux/bootstrap.min.css">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
 
 </head>
+
 <body>
 
     <header>
@@ -19,22 +21,33 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
 
                         {% if session.get('user_name') %}
                         <li class="nav-item">Bienvenue {{session['user_name']}} !</li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('compte.profile') }}">Voir votre
-                                compte</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('compte.deconnexion') }}">Se
-                                déconnecter</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('coach.liste_coachs') }}">Coachs</a>
+                        <li class="nav-item position-relative mx-2">
+                            <a class="nav-link" href="{{ url_for('notification.notifications') }}">
+                                <p class="bi-bell d-inline" style="font-size:1.3rem; margin:0;"></p>
+                                {% if nb_notifications and nb_notifications > 0 %}
+                                <span
+                                    class="position-absolute top-0 start-100 badge rounded-pill bg-danger">
+                                    {{ nb_notifications }}
+                                </span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('compte.profile') }}">Mon compte</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('compte.deconnexion') }}">Se déconnecter</a></li>
                         {% else %}
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('compte.connexion') }}">Connexion</a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('compte.form_utilisateur') }}">Créer
                                 un utilisateur</a></li>
                         {% endif %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('coach.liste_coachs') }}">Coachs</a></li>
+                        </li>
+
                     </ul>
                 </div>
             </div>

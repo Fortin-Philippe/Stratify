@@ -1,12 +1,14 @@
 
 
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request, url_for, session
 from bd import ajouter_utilisateur
 from accueil import bp as acceuil_bp
 from forum import forum_bp as forum_bp
 from compte import bp_compte
 from coach import bp_coach
-import os
+from notification import bp_notification
+
+import os, bd
 
 app = Flask(__name__)
 
@@ -15,6 +17,7 @@ app.register_blueprint(bp_compte)
 app.register_blueprint(acceuil_bp)
 app.register_blueprint(forum_bp)
 app.register_blueprint(bp_coach)
+app.register_blueprint(bp_notification)
 @app.route('/')
 def home():
         return render_template("accueil.jinja")
@@ -41,6 +44,15 @@ def form_utilisateur():
         return redirect(url_for('home'))
     else:
          return render_template("form-utilisateur.jinja")
+
+@app.context_processor
+def injecter_nb_notifications():
+
+    nb_notifications = 0
+    utilisateur_id = session.get("user_id")
+    if utilisateur_id:
+        nb_notifications = bd.notifications_non_lues(utilisateur_id)
+    return {"nb_notifications": nb_notifications}
 
 if __name__ == "__main__":
     app.run(debug=True)
