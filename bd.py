@@ -189,3 +189,31 @@ def obtenir_conversations_utilisateur(user_id):
         with conn.get_curseur() as curseur:
             curseur.execute(query, {'id': user_id})
             return curseur.fetchall()
+
+def obtenir_messages_prives(user_id, autre_id):
+    query = """
+    SELECT mp.*, u.user_name AS expediteur_nom, u.image AS expediteur_image
+    FROM message_prive mp
+    JOIN utilisateur u ON mp.expediteur_id = u.id
+    WHERE (mp.expediteur_id = %(user_id)s AND mp.destinataire_id = %(autre_id)s)
+       OR (mp.expediteur_id = %(autre_id)s AND mp.destinataire_id = %(user_id)s)
+    ORDER BY mp.date_envoi ASC;
+    """
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(query, {'user_id': user_id, 'autre_id': autre_id})
+            return curseur.fetchall()
+
+
+def envoyer_message_prive(expediteur_id, destinataire_id, contenu):
+    query = """
+    INSERT INTO message_prive (expediteur_id, destinataire_id, contenu, date_envoi)
+    VALUES (%(expediteur_id)s, %(destinataire_id)s, %(contenu)s, NOW())
+    """
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(query, {
+                'expediteur_id': expediteur_id,
+                'destinataire_id': destinataire_id,
+                'contenu': contenu
+            })
