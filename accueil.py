@@ -132,20 +132,14 @@ def selectionner_niveau(niveau_id):
 
 @bp.route('/confirmation')
 def confirmation():
-    """Affiche la page de confirmation avec le récapitulatif des choix"""
-    
+    """Redirige vers le forum après confirmation des choix"""
     jeu_selectionne = request.cookies.get('jeu_selectionne')
     niveau_selectionne = request.cookies.get('niveau_selectionne')
     
     if not jeu_selectionne or not niveau_selectionne:
         return redirect(url_for('accueil.choisir_jeu'))
     
-    nom_jeu = JEUX.get(jeu_selectionne, {}).get('nom', jeu_selectionne)
-    nom_niveau = NOMS_NIVEAUX.get(jeu_selectionne, {}).get(niveau_selectionne, niveau_selectionne)
-    
-    return render_template('forum.jinja',
-                         nom_jeu=nom_jeu,
-                         nom_niveau=nom_niveau)
+    return redirect(url_for('forum.index'))
 
 
 

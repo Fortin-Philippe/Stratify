@@ -1,0 +1,79 @@
+{% extends 'base.jinja' %}
+
+{% block content %}
+<div class="forum-container">
+    <a href="{{ url_for('forum.index') }}" class="btn-back">← Retour au forum</a>
+
+
+    <div class="discussion-main">
+        <div class="discussion-header">
+            <h1>{{ discussion.titre }}</h1>
+            <span class="topic-category category-{{ discussion.categorie }}">
+                {{ discussion.categorie|capitalize }}
+            </span>
+        </div>
+
+        <div class="discussion-post main-post">
+            <div class="post-author">
+                <div class="avatar-placeholder">{{ discussion.auteur[0]|upper }}</div>
+                <div class="author-info">
+                    <strong>{{ discussion.auteur }}</strong>
+                    <small>{{ discussion.date_creation.strftime('%d/%m/%Y à %H:%M') if discussion.date_creation else 'Date inconnue' }}</small>
+                </div>
+            </div>
+            <div class="post-content">
+                {{ discussion.contenu }}
+            </div>
+            <div class="post-stats">
+                <span>👁️ {{ discussion.vues }} vues</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="messages-section">
+        <h2>Réponses ({{ messages|length }})</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="message-post">
+                <div class="post-author">
+                    <div class="avatar-placeholder">{{ message.auteur[0]|upper }}</div>
+                    <div class="author-info">
+                        <strong>{{ message.auteur }}</strong>
+                        <small>{{ message.date_creation.strftime('%d/%m/%Y à %H:%M') if message.date_creation else 'Date inconnue' }}</small>
+                    </div>
+                </div>
+                <div class="post-content">
+                    {{ message.contenu }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-messages">
+                <p>Aucune réponse pour le moment. Soyez le premier à répondre !</p>
+            </div>
+        {% endif %}
+    </div>
+
+
+    {% if est_connecte %}
+    <form method="POST" class="message-form">
+        <input type="hidden" name="auteur" value="{{ session.user_name }}">
+        
+        <div class="form-group">
+            <label for="contenu">Votre réponse</label>
+            <textarea id="contenu" name="contenu" required rows="5" 
+                      placeholder="Écrivez votre réponse..."></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Poster la réponse</button>
+    </form>
+{% else %}
+    <div class="login-prompt">
+        <p>Vous devez être connecté pour répondre à cette discussion.</p>
+        <a href="{{ url_for('compte.connexion') }}" class="btn btn-primary">Se connecter</a>
+    </div>
+{% endif %}
+</div>
+{% endblock %}

@@ -9,7 +9,6 @@ JEUX = {
     'cs2': {'nom': 'Counter-Strike 2', 'description': 'FPS compétitif'},
     'rocketleague': {'nom': 'Rocket League', 'description': 'Jeu de voiture et football'}}
 
-
 NIVEAUX = {
     'valorant': [
         {'id': 'fer', 'nom': 'Fer'},
@@ -26,7 +25,7 @@ NIVEAUX = {
         {'id': 'Rank_30', 'nom': 'Rank_30'},
         {'id': 'rank_40', 'nom': 'rank_40'}
     ],
-     'rocketleague': [
+    'rocketleague': [
         {'id': 'bronze', 'nom': 'bronze'},
         {'id': 'or', 'nom': 'or'},
         {'id': 'champion', 'nom': 'champion'}
@@ -55,28 +54,46 @@ NOMS_NIVEAUX = {
         'dchampion': 'champion'
     }
 }
+
 @forum_bp.route('/forum')
 def index():
-    """Affiche la liste des discussions du forum"""
+    """Affiche la liste des discussions du forum avec recherche et filtres"""
     jeu_selectionne = request.cookies.get('jeu_selectionne')
     niveau_selectionne = request.cookies.get('niveau_selectionne')
     
     if not jeu_selectionne or not niveau_selectionne:
         return redirect(url_for('accueil.choisir_jeu'))
     
+    search_query = request.args.get('search', '').strip()
+    category_filter = request.args.get('filter', 'all')
     
     discussions = bd.obtenir_discussions(jeu_selectionne, niveau_selectionne)
     
+    if search_query:
+        discussions = [
+            d for d in discussions 
+            if (search_query.lower() in d['titre'].lower() or 
+                search_query.lower() in d['contenu'].lower() or 
+                search_query.lower() in d['auteur'].lower())
+        ]
+    
+    if category_filter != 'all':
+        discussions = [
+            d for d in discussions 
+            if d.get('categorie', 'discussion') == category_filter
+        ]
+    
     nom_jeu = JEUX.get(jeu_selectionne, {}).get('nom', jeu_selectionne)
-    nom_niveau = NOMS_NIVEAUX .get(jeu_selectionne, {}).get(niveau_selectionne, niveau_selectionne)
+    nom_niveau = NOMS_NIVEAUX.get(jeu_selectionne, {}).get(niveau_selectionne, niveau_selectionne)
     
     return render_template('forum.jinja',
                          discussions=discussions,
                          nom_jeu=nom_jeu,
                          nom_niveau=nom_niveau,
                          jeu_selectionne=jeu_selectionne,
-                         niveau_selectionne=niveau_selectionne)
-
+                         niveau_selectionne=niveau_selectionne,
+                         search_query=search_query,
+                         category_filter=category_filter)
 
 
 @forum_bp.route('/forum/nouvelle-discussion', methods=['GET', 'POST'])
@@ -89,7 +106,6 @@ def nouvelle_discussion():
         flash('Sélection de jeu invalide', 'error')
         return redirect(url_for('accueil.choisir_jeu'))
     
-    
     if request.method == 'GET':
         nom_jeu = JEUX.get(jeu_selectionne, {}).get('nom', jeu_selectionne)
         nom_niveau = NOMS_NIVEAUX.get(jeu_selectionne, {}).get(niveau_selectionne, niveau_selectionne)
@@ -97,7 +113,6 @@ def nouvelle_discussion():
         return render_template('message.jinja',
                              nom_jeu=nom_jeu,
                              nom_niveau=nom_niveau)
-    
     
     titre = request.form.get('titre')
     contenu = request.form.get('contenu')
@@ -130,27 +145,29 @@ def voir_discussion(discussion_id):
     
     if not discussion:
         flash('Discussion introuvable', 'error')
-        return redirect(url_for('forum.jinja'))
-    
-    
+        return redirect(url_for('forum.index'))
+
     bd.incrementer_vues(discussion_id)
-    
+
     if request.method == 'POST':
         contenu = request.form.get('contenu')
         auteur = request.form.get('auteur')
-        
-        if contenu and auteur:
-            message_data = {
-                'contenu': contenu,
-                'auteur': auteur,
-                'discussion_id': discussion_id
-            }
-            bd.ajouter_message(message_data)
-            flash('Message posté avec succès !', 'success')
+
+        if not contenu or not auteur:
+            flash('Tous les champs sont requis', 'error')
             return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
-    
+
+        message_data = {
+            'contenu': contenu,
+            'auteur': auteur,
+            'discussion_id': discussion_id
+        }
+        bd.ajouter_message(message_data)
+        flash('Message posté avec succès !', 'success')
+        return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
+
     messages = bd.obtenir_messages(discussion_id)
-    
-    return render_template('forum.jinja',
+
+    return render_template('discussion.jinja',
                          discussion=discussion,
                          messages=messages)
