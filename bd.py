@@ -172,17 +172,20 @@ def obtenir_coachs():
 def obtenir_conversations_utilisateur(user_id):
     query = """
     SELECT 
-        u.id, u.user_name, u.image,
-        mp.contenu AS dernier_message,
-        mp.date_envoi AS date_message
+        u.id AS autre_id, 
+        u.user_name, 
+        u.image,
+        MAX(mp.date_envoi) AS date_message,
+        SUBSTRING_INDEX(MAX(CONCAT(mp.date_envoi, '|||', mp.contenu)), '|||', -1) AS dernier_message
     FROM message_prive mp
     JOIN utilisateur u 
-        ON (u.id = CASE 
+        ON u.id = CASE 
             WHEN mp.expediteur_id = %(id)s THEN mp.destinataire_id 
-            ELSE mp.expediteur_id END)
+            ELSE mp.expediteur_id 
+        END
     WHERE mp.expediteur_id = %(id)s OR mp.destinataire_id = %(id)s
-    GROUP BY u.id, u.user_name, u.image, mp.contenu, mp.date_envoi
-    ORDER BY mp.date_envoi DESC;
+    GROUP BY u.id, u.user_name, u.image
+    ORDER BY date_message DESC;
     """
     
     with creer_connexion() as conn:
@@ -190,6 +193,33 @@ def obtenir_conversations_utilisateur(user_id):
             curseur.execute(query, {'id': user_id})
             return curseur.fetchall()
 
+def obtenir_messages_prives(user_id, autre_id):
+    query = """
+    SELECT mp.*, u.user_name AS expediteur_nom, u.image AS expediteur_image
+    FROM message_prive mp
+    JOIN utilisateur u ON mp.expediteur_id = u.id
+    WHERE (mp.expediteur_id = %(user_id)s AND mp.destinataire_id = %(autre_id)s)
+       OR (mp.expediteur_id = %(autre_id)s AND mp.destinataire_id = %(user_id)s)
+    ORDER BY mp.date_envoi ASC;
+    """
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(query, {'user_id': user_id, 'autre_id': autre_id})
+            return curseur.fetchall()
+
+
+def envoyer_message_prive(expediteur_id, destinataire_id, contenu):
+    query = """
+    INSERT INTO message_prive (expediteur_id, destinataire_id, contenu, date_envoi)
+    VALUES (%(expediteur_id)s, %(destinataire_id)s, %(contenu)s, NOW())
+    """
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(query, {
+                'expediteur_id': expediteur_id,
+                'destinataire_id': destinataire_id,
+                'contenu': contenu
+            })
 
 def rechercher_coachs(recherche):
     with creer_connexion() as conn:
