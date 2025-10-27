@@ -2,66 +2,64 @@
 
 {% block content %}
 <div class="coachs-container">
-    
+
     <div class="coachs-header">
         <h1>Nos Coachs Disponibles</h1>
         <p class="subtitle">Trouvez le coach parfait pour améliorer votre niveau de jeu</p>
     </div>
 
-    
-    {% if coachs %}
-    <div class="coachs-grid">
-        {% for coach in coachs %}
-        <div class="coach-card">
-            <div class="coach-image">
-                {% if coach.image %}
-                <img src="{{ url_for('static', filename=coach.image) }}" alt="{{ coach.user_name }}">
-                {% else %}
-                <div class="coach-avatar-placeholder">{{ coach.user_name[0]|upper }}</div>
-                {% endif %}
-            </div>
-            
-            <div class="coach-info">
-                <h3 class="coach-name">{{ coach.user_name }}</h3>
-                
-                <div class="coach-description">
-                    {% if coach.description %}
-                    {{ coach.description }}
-                    {% else %}
-                    <em>Aucune description disponible</em>
-                    {% endif %}
-                </div>
-                
-                <div class="coach-contact">
-                    <span class="coach-email">{{ coach.courriel }}</span>
-                </div>
-            </div>
-            
-            <div class="coach-actions">
-                {% if session.get('user_id') %}
-                    {% if session['user_id'] != coach.id %}
-                        <a href="{{ url_for('message.conversation', autre_id=coach.id) }}" 
-                           class="btn btn-primary">
-                            Contacter
-                        </a>
-                    {% else %}
-                        <button class="btn btn-secondary" disabled>Vous-même</button>
-                    {% endif %}
-                {% else %}
-                    <a href="{{ url_for('compte.connexion') }}" class="btn btn-warning">
-                        Se connecter pour contacter
-                    </a>
-                {% endif %}
-            </div>
+
+    <form method="get" action="{{ url_for('coach.liste_coachs') }}" class="search-bar mb-4">
+        <div class="input-group">
+            <input type="text" name="elem" class="form-control" placeholder="Recherche par nom ou courriel..."
+                list="coach-list" value="{{ recherche }}">
+            <button class="btn btn-primary" type="submit">Rechercher</button>
         </div>
-        {% endfor %}
+    </form>
+
+   {% if coachs %}
+<div class="list-group shadow-sm">
+    {% for coach in coachs %}
+    <div class="list-group-item list-group-item-action d-flex align-items-center">
+        <div class="me-3">
+            {% if coach.image %}
+            <img src="{{ url_for('static', filename=coach.image) }}" alt="{{ coach.user_name }}" class="rounded-circle border border-success" width="60" height="60">
+            {% else %}
+            <div class="rounded-circle bg-success text-white d-flex justify-content-center align-items-center fw-bold" style="width:60px; height:60px; font-size:1.5rem;">
+                {{ coach.user_name[0]|upper }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="flex-grow-1">
+            <p class="coach-name">{{ coach.user_name }}</p>
+            <p class="coach-email"><strong>Courriel: </strong>{{ coach.courriel }}</p>
+            {% if coach.description %}
+            <p><strong>Description: </strong>{{ coach.description }}</p>
+            {% else %}
+            <p class="text-muted">Aucune description disponible</p>
+            {% endif %}
+            {% if coach.jeux %}
+            <div class="mt-2">
+                <strong>Jeux :</strong>
+                {% for jeu in coach.jeux %}
+                <span class="badge bg-secondary me-1">{{ jeu.nom }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="ms-3">
+            <a href="{{ url_for('coach.demande_coach', coach_id=coach.id) }}" class="btn btn-outline-success btn-sm">Demande</a>
+        </div>
     </div>
-    {% else %}
-    <div class="no-coachs">
-        <div class="empty-icon">👤</div>
-        <h2>Aucun coach disponible</h2>
-        <p>Il n'y a pas encore de coachs enregistrés sur la plateforme.</p>
-    </div>
-    {% endif %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    Aucun coach disponible pour le moment.
+</div>
+{% endif %}
+
 </div>
 {% endblock %}
