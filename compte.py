@@ -85,14 +85,6 @@ def connexion():
                 session['user_name'] = utilisateur['user_name']
 
                 session['est_coach'] = utilisateur['est_coach']
-
-
-                # lstJeux = utilisateur.get('lstJeux', [])
-                # if isinstance(lstJeux, str):
-                #     lstJeux = lstJeux.split(',')
-                # elif isinstance(lstJeux, set):
-                #     lstJeux = list(lstJeux)
-                # session['lstJeux'] = lstJeux
                 session['est_connecte'] = 1
                 flash("Vous êtes connecté !", "success")
 
@@ -113,14 +105,6 @@ def profile():
     if not utilisateur:
         flash("Utilisateur introuvable", "danger")
         return redirect(url_for('accueil.choisir_jeu'))
-
-    # lstJeux = utilisateur.get('lstJeux', [])
-    # if isinstance(lstJeux, str):
-    #     lstJeux = lstJeux.split(',')
-    # elif isinstance(lstJeux, set):
-    #     lstJeux = list(lstJeux)
-    # utilisateur['lstJeux'] = lstJeux
-
     return render_template('profile.jinja', utilisateur=utilisateur)
 
 
@@ -135,23 +119,12 @@ def profile_modif():
         flash("Utilisateur introuvable.", "danger")
         return redirect(url_for("accueil.choisir_jeu"))
 
-
-    # lstJeux = user.get('lstJeux')
-    # if not lstJeux:
-    #     lstJeux = []
-    # elif isinstance(lstJeux, str):
-    #     lstJeux = lstJeux.split(',')
-    # elif isinstance(lstJeux, set):
-    #     lstJeux = list(lstJeux)
-    # user['lstJeux'] = lstJeux
-
     dossier_images = os.path.join(os.path.dirname(__file__), "static", "img", "profiles")
     images_profiles = [f"img/profiles/{f}" for f in os.listdir(dossier_images) if f.endswith(".webp")]
 
     if request.method == "POST":
         user_name = request.form.get("user_name", user["user_name"]).strip()
         description = request.form.get("description", user["description"]).strip()
-        # lstJeux_modif = request.form.getlist("lstJeux")
         est_coach = 1 if request.form.get("est_coach") else 0
         mdp = request.form.get("mdp", None)
         image_path = request.form.get("image", user.get("image"))
@@ -164,7 +137,6 @@ def profile_modif():
         update_data = {
             "user_name": user_name,
             "description": description,
-            # "lstJeux": ",".join(lstJeux_modif),
             "est_coach": est_coach,
             "image": image_path
         }
@@ -175,7 +147,6 @@ def profile_modif():
         bd.update_utilisateur(user["id"], update_data)
 
         session['user_name'] = user_name
-        # session['lstJeux'] = lstJeux_modif
         session['est_coach'] = est_coach
         session['image'] = image_path
         session['est_connecte'] = 1
@@ -195,3 +166,16 @@ def deconnexion():
 def hacher_mdp(mdp):
     return hashlib.sha512(mdp.encode()).hexdigest()
 
+@bp_compte.route('/profil/<int:user_id>')
+def voir_profil(user_id):
+    if 'user_id' not in session:
+        flash("Veuillez vous connecter pour accéder aux profils.", "warning")
+        return redirect(url_for('compte.connexion'))
+
+    utilisateur = bd.get_utilisateur_par_id(user_id)
+    if not utilisateur:
+        flash("Profil introuvable.", "danger")
+        return redirect(url_for('accueil.choisir_jeu'))
+
+    est_propre_profil = (user_id == session['user_id'])
+    return render_template('profil_autre.jinja', utilisateur=utilisateur, est_propre_profil=est_propre_profil)

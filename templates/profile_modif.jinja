@@ -23,18 +23,6 @@
             <input class="form-control" type="password" name="mdp" minlength="3" maxlength="100">
         </div>
 
-        {# <div class="mb-3">
-            <label class="form-label" style="color: rgb(105,240,174);">Jeux</label><br>
-            {% set jeux_possibles = ["League of Legends", "Valorant", "CS2", "Rocket League"] %}
-            {% for jeu in jeux_possibles %}
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" name="lstJeux" value="{{ jeu }}"
-                        {% if user.lstJeux and jeu in user.lstJeux %} checked {% endif %}>
-                    <label class="form-check-label" style="color: rgb(105,240,174);">{{ jeu }}</label>
-                </div>
-            {% endfor %}
-        </div> #}
-
         <div class="mb-3">
             <label class="form-label" style="color: rgb(105,240,174);">Avatar</label>
             <select class="form-select" name="image">

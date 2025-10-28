@@ -32,8 +32,12 @@
         </div>
 
         <div class="flex-grow-1">
-            <p class="coach-name">{{ coach.user_name }}</p>
-            <p class="coach-email"><strong>Courriel: </strong>{{ coach.courriel }}</p>
+            <p class="coach-name">
+                <a href="{{ url_for('compte.voir_profil', user_id=coach.id) }}" class="text-decoration-none fw-bold text-dark">
+                    {{ coach.user_name }}
+                </a>
+            </p>
+            <p class="coach-email text-black"><strong>Courriel: </strong>{{ coach.courriel }}</p>
             {% if coach.description %}
             <p><strong>Description: </strong>{{ coach.description }}</p>
             {% else %}
