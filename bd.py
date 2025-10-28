@@ -168,6 +168,30 @@ def obtenir_coachs():
                    ORDER BY user_name ASC"""
             )
             return curseur.fetchall()
+        
+def supprimer_discussion(discussion_id):
+    """Supprime une discussion et tous ses messages"""
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute('DELETE FROM messages WHERE discussion_id = %s', (discussion_id,))
+            
+            curseur.execute('DELETE FROM discussions WHERE id = %s', (discussion_id,))
+
+
+def supprimer_message(message_id):
+    """Supprime un message"""
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute('DELETE FROM messages WHERE id = %s', (message_id,))
+
+
+def obtenir_message(message_id):
+    """Recupere un message par son ID"""
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute('SELECT * FROM messages WHERE id = %s', (message_id,))
+            resultat = curseur.fetchone()
+            return resultat if resultat else None
 
 def obtenir_conversations_utilisateur(user_id):
     query = """
