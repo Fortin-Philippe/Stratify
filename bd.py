@@ -115,8 +115,8 @@ def creer_discussion(discussion):
         with conn.get_curseur() as curseur:
             curseur.execute(
                 """INSERT INTO discussions
-                   (titre, contenu, auteur, jeu, niveau, categorie, date_creation)
-                   VALUES (%(titre)s, %(contenu)s, %(auteur)s, %(jeu)s, %(niveau)s, %(categorie)s, NOW())""",
+                   (titre, contenu, auteur, auteur_id, jeu, niveau, categorie, date_creation)
+                   VALUES (%(titre)s, %(contenu)s, %(auteur)s, %(auteur_id)s, %(jeu)s, %(niveau)s, %(categorie)s, NOW())""",
                 discussion
             )
             return curseur.lastrowid
@@ -150,8 +150,8 @@ def ajouter_message(message):
         with conn.get_curseur() as curseur:
             curseur.execute(
                 """INSERT INTO messages
-                   (contenu, auteur, discussion_id, date_creation)
-                   VALUES (%(contenu)s, %(auteur)s, %(discussion_id)s, NOW())""",
+                   (contenu, auteur, auteur_id, discussion_id, date_creation)
+                   VALUES (%(contenu)s, %(auteur)s, %(auteur_id)s, %(discussion_id)s, NOW())""",
                 message
             )
             return curseur.lastrowid
@@ -245,6 +245,17 @@ def envoyer_message_prive(expediteur_id, destinataire_id, contenu):
                 'contenu': contenu
             })
 
+            curseur.execute("SELECT user_name FROM utilisateur WHERE id = %s", (expediteur_id,))
+            expediteur = curseur.fetchone()
+
+            if expediteur:
+                titre = "Nouveau message privé"
+                message = f"Vous avez reçu un message de {expediteur['user_name']}."
+                curseur.execute("""
+                    INSERT INTO notifications (utilisateur_id, titre, message, lu, date_envoi, autre_id)
+                    VALUES (%s, %s, %s, FALSE, NOW(), %s)
+                """, (destinataire_id, titre, message, expediteur_id))
+
 def rechercher_coachs(recherche):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
@@ -292,7 +303,7 @@ def obtenir_notifications(utilisateur_id):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute("""
-                SELECT id, titre, message, date_envoi, lu, demande_id
+                SELECT id, titre, message, date_envoi, lu, demande_id, autre_id
                 FROM notifications
                 WHERE utilisateur_id = %s
                 ORDER BY date_envoi DESC
@@ -352,3 +363,9 @@ def supprimer_notification_avec_demande(demande_id):
         with conn.cursor() as curseur:
             curseur.execute("DELETE FROM notifications WHERE demande_id = %s", (demande_id,))
         conn.commit()
+
+def marquer_notifications_comme_lues(utilisateur_id):
+    query = "UPDATE notifications SET lu = TRUE WHERE utilisateur_id = %s"
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(query, (utilisateur_id,))

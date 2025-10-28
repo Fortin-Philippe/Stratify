@@ -10,11 +10,12 @@
             <img src="{{ url_for('static', filename=utilisateur.image) }}"
 
                  alt="Avatar" class="rounded-circle"
-                 style="width: 150px; height: 150px; object-fit: cover; border: 3px solid rgb(0, 200, 83);">
+                 style="width: 150px; height: 150px; object-fit: cover; border: 3px solid darkgreen;">
         </div>
     {% endif %}
 
-    <h1 class="titre text-center mb-3">{{ utilisateur.user_name }}</h1>
+    <h1 class="titre text-center mb-3" style="color:darkgreen">{{ utilisateur.user_name }}</h1>
+    <p class="text-center">{{ utilisateur.courriel }}</p>
     <p><strong>Description :</strong> {{ utilisateur.description or "Aucune description" }}</p>
     {% if utilisateur.est_coach %}
                 <span class="badge bg-success">Coach</span>

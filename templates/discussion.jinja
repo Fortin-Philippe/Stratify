@@ -27,7 +27,10 @@
             <div class="post-author">
                 <div class="avatar-placeholder">{{ discussion.auteur[0]|upper }}</div>
                 <div class="author-info">
-                    <strong>{{ discussion.auteur }}</strong>
+                <a class="text-dark" href="{{ url_for('compte.voir_profil', user_id=discussion_auteur.id) }}">
+                {{ discussion.auteur }}
+                </a>
+
                     <small>{{ discussion.date_creation.strftime('%d/%m/%Y à %H:%M') if discussion.date_creation else 'Date inconnue' }}</small>
                 </div>
             </div>
@@ -50,7 +53,10 @@
                     <div class="post-author">
                         <div class="avatar-placeholder">{{ message.auteur[0]|upper }}</div>
                         <div class="author-info">
-                            <strong>{{ message.auteur }}</strong>
+                            {% set auteur_user = messages_auteurs[message.auteur] %}
+                            <a class="text-dark" href="{{ url_for('compte.voir_profil', user_id=auteur_user.id) }}">
+                            {{ message.auteur }}
+                            </a>
                             <small>{{ message.date_creation.strftime('%d/%m/%Y à %H:%M') if message.date_creation else 'Date inconnue' }}</small>
                         </div>
                     </div>

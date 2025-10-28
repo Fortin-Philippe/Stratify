@@ -9,6 +9,7 @@ def notifications():
     if not utilisateur_id:
         return redirect(url_for("compte.connexion"))
     notifications = bd.obtenir_notifications(utilisateur_id)
+    bd.marquer_notifications_comme_lues(utilisateur_id)
     return render_template("notification.jinja", notifications=notifications)
 
 @bp_notification.route("/accepter-demande/<int:demande_id>")

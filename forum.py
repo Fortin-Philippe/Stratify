@@ -118,6 +118,7 @@ def nouvelle_discussion():
     titre = request.form.get('titre')
     contenu = request.form.get('contenu')
     auteur = session.get('user_name')
+    auteur_id = session.get('user_id')
     categorie = request.form.get('categorie', 'discussion')
     
     if not titre or not contenu or not auteur:
@@ -128,6 +129,7 @@ def nouvelle_discussion():
         'titre': titre,
         'contenu': contenu,
         'auteur': auteur,
+        'auteur_id': auteur_id,
         'jeu': jeu_selectionne,
         'niveau': niveau_selectionne,
         'categorie': categorie
@@ -153,6 +155,7 @@ def voir_discussion(discussion_id):
     if request.method == 'POST':
         contenu = request.form.get('contenu')
         auteur = session.get('user_name')
+        auteur_id = session.get('user_id')
 
         if not contenu or not auteur:
             flash('Tous les champs sont requis', 'error')
@@ -161,6 +164,7 @@ def voir_discussion(discussion_id):
         message_data = {
             'contenu': contenu,
             'auteur': auteur,
+            'auteur_id': auteur_id,
             'discussion_id': discussion_id
         }
         bd.ajouter_message(message_data)
@@ -168,10 +172,14 @@ def voir_discussion(discussion_id):
         return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
 
     messages = bd.obtenir_messages(discussion_id)
+    discussion_auteur = bd.get_utilisateur_par_username(discussion['auteur'])
+    messages_auteurs = {m['auteur']: bd.get_utilisateur_par_username(m['auteur']) for m in messages}
 
     return render_template('discussion.jinja',
                          discussion=discussion,
-                         messages=messages)
+                         messages=messages,
+                         discussion_auteur=discussion_auteur,
+                         messages_auteurs=messages_auteurs)
 
 
 @forum_bp.route('/forum/discussion/<int:discussion_id>/supprimer', methods=['POST'])
