@@ -1025,4 +1025,29 @@ header
             transform: translateY(-2px)
             box-shadow: 0 6px 16px rgba($green-main, 0.5)
 
+.btn-delete,
+.btn-delete-small
+    background: $red-accent
+    color: $white
+    border: none
+    padding: 8px 12px
+    border-radius: 6px
+    cursor: pointer
+    font-size: 1.2em
+    transition: all 0.3s ease
+    box-shadow: 0 2px 6px rgba($red-accent, 0.4)
 
+    &:hover
+        background: darken($red-accent, 10%)
+        transform: scale(1.1)
+        box-shadow: 0 4px 12px rgba($red-accent, 0.6)
+
+.btn-delete-small
+    padding: 6px 10px
+    font-size: 1em
+
+.post-header-with-delete
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 20px

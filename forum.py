@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import bd
+
 
 forum_bp = Blueprint('forum', __name__)
 
@@ -171,3 +172,46 @@ def voir_discussion(discussion_id):
     return render_template('discussion.jinja',
                          discussion=discussion,
                          messages=messages)
+
+
+@forum_bp.route('/forum/discussion/<int:discussion_id>/supprimer', methods=['POST'])
+def supprimer_discussion(discussion_id):
+    """Supprimer une discussion (réservé aux coachs)"""
+    if not session.get('user_name'):
+        flash('Vous devez être connecté', 'error')
+        return redirect(url_for('compte.connexion'))
+    
+    if not session.get('est_coach'):
+        flash('Vous n\'avez pas les permissions pour supprimer cette discussion', 'error')
+        return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
+    
+    discussion = bd.obtenir_discussion(discussion_id)
+    if discussion:
+        bd.supprimer_discussion(discussion_id)
+        flash('Discussion supprimée avec succès', 'success')
+        return redirect(url_for('forum.index'))
+    else:
+        flash('Discussion introuvable', 'error')
+        return redirect(url_for('forum.index'))
+
+
+@forum_bp.route('/forum/message/<int:message_id>/supprimer', methods=['POST'])
+def supprimer_message(message_id):
+    """Supprimer un message (réservé aux coachs)"""
+    if not session.get('user_name'):
+        flash('Vous devez être connecté', 'error')
+        return redirect(url_for('compte.connexion'))
+    
+    if not session.get('est_coach'):
+        flash('Vous n\'avez pas les permissions pour supprimer ce message', 'error')
+        return redirect(url_for('forum.index'))
+    
+    message = bd.obtenir_message(message_id)
+    if message:
+        discussion_id = message['discussion_id']
+        bd.supprimer_message(message_id)
+        flash('Message supprimé avec succès', 'success')
+        return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
+    else:
+        flash('Message introuvable', 'error')
+        return redirect(url_for('forum.index'))

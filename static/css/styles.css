@@ -12182,4 +12182,35 @@ header h1 a:hover {
   background: rgb(0, 251, 104.165);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 200, 83, 0.5);
+}
+
+.btn-delete,
+.btn-delete-small {
+  background: rgb(255, 23, 68);
+  color: rgb(255, 255, 255);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2em;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(255, 23, 68, 0.4);
+}
+.btn-delete:hover,
+.btn-delete-small:hover {
+  background: rgb(227, 0, 44.0301724138);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 23, 68, 0.6);
+}
+
+.btn-delete-small {
+  padding: 6px 10px;
+  font-size: 1em;
+}
+
+.post-header-with-delete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }/*# sourceMappingURL=styles.css.map */

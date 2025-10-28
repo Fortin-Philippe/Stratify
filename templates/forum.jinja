@@ -13,7 +13,6 @@
                 </a>
     </div>
 
-    <!-- Formulaire de recherche et filtres -->
     <div class="forum-filters">
         <form method="GET" action="{{ url_for('forum.index') }}" class="search-bar">
             <input type="text" name="search" placeholder="Rechercher un sujet..." 
@@ -43,7 +42,6 @@
         </div>
     </div>
 
-    <!-- Liste des discussions -->
     <div class="topics-list">
         {% if discussions %}
             {% for discussion in discussions %}
@@ -112,7 +110,6 @@
     </div>
 
     {% if discussions %}
-    <!-- Pagination -->
     <div class="pagination">
         <button class="page-btn" disabled>← Précédent</button>
         <button class="page-btn active">1</button>
