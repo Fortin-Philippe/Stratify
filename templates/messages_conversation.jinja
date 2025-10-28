@@ -1,0 +1,40 @@
+{% extends "base.jinja" %}
+
+{% block title %}Conversation avec {{ autre_user.user_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="height: 90vh;">
+    <div class="row justify-content-center h-100">
+        <div class="col-12 col-md-10 col-lg-8 d-flex flex-column border rounded bg-dark text-light">
+
+            <div class="py-3 border-bottom text-center">
+                <h4 class="mb-0 text-white">Conversation avec {{ autre_user.user_name }}</h4>
+            </div>
+
+            <div id="chatMessages" class="flex-grow-1 overflow-auto p-3 bg-secondary bg-opacity-25">
+                {% for msg in messages %}
+                    <div class="mb-3 d-flex {% if msg.expediteur_id == session.user_id %}justify-content-end{% else %}justify-content-start{% endif %}">
+                        <div class="p-2 rounded {% if msg.expediteur_id == session.user_id %}bg-success text-white{% else %}bg-light text-dark{% endif %} w-75">
+                            <div><strong>{{ msg.expediteur_nom }}</strong></div>
+                            <div>{{ msg.contenu }}</div>
+                            <div class="small text-end">{{ msg.date_envoi }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <form method="POST" class="mt-3 border-top p-3">
+                <div class="input-group">
+                    <input type="text" name="contenu" class="form-control" placeholder="Écrire un message..." required>
+                    <button type="submit" class="btn btn-primary">Envoyer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chat = document.getElementById("chatMessages");
+    chat.scrollTop = chat.scrollHeight;
+</script>
+{% endblock %}

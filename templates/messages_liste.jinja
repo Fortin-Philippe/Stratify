@@ -1,0 +1,33 @@
+{% extends "base.jinja" %}
+
+{% block title %}Vos Conversations{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Vos Conversations</h2>
+    {% if conversations %}
+        <ul class="list-group">
+            {% for conv in conversations %}
+                <li class="list-group-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        {% if conv.image %}
+                            <img src="{{ url_for('static', filename=conv.image) }}"
+                            alt="Photo de profil" class="rounded-circle me-3" width="40" height="40">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='img/profiles/default.webp') }}"
+                            alt="Profil par défaut" class="rounded-circle me-3" width="40" height="40">
+                        {% endif %}
+                        <div>
+                            <strong>{{ conv.user_name }}</strong><br>
+                            <small>{{ conv.dernier_message or "Aucun message" }}</small>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('message.conversation', autre_id=conv.autre_id) }}" class="btn btn-primary btn-sm">Ouvrir</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune conversation trouvée.</p>
+    {% endif %}
+</div>
+{% endblock %}

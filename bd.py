@@ -192,3 +192,163 @@ def obtenir_message(message_id):
             curseur.execute('SELECT * FROM messages WHERE id = %s', (message_id,))
             resultat = curseur.fetchone()
             return resultat if resultat else None
+
+def obtenir_conversations_utilisateur(user_id):
+    query = """
+    SELECT 
+        u.id AS autre_id, 
+        u.user_name, 
+        u.image,
+        MAX(mp.date_envoi) AS date_message,
+        SUBSTRING_INDEX(MAX(CONCAT(mp.date_envoi, '|||', mp.contenu)), '|||', -1) AS dernier_message
+    FROM message_prive mp
+    JOIN utilisateur u 
+        ON u.id = CASE 
+            WHEN mp.expediteur_id = %(id)s THEN mp.destinataire_id 
+            ELSE mp.expediteur_id 
+        END
+    WHERE mp.expediteur_id = %(id)s OR mp.destinataire_id = %(id)s
+    GROUP BY u.id, u.user_name, u.image
+    ORDER BY date_message DESC;
+    """
+    
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(query, {'id': user_id})
+            return curseur.fetchall()
+
+def obtenir_messages_prives(user_id, autre_id):
+    query = """
+    SELECT mp.*, u.user_name AS expediteur_nom, u.image AS expediteur_image
+    FROM message_prive mp
+    JOIN utilisateur u ON mp.expediteur_id = u.id
+    WHERE (mp.expediteur_id = %(user_id)s AND mp.destinataire_id = %(autre_id)s)
+       OR (mp.expediteur_id = %(autre_id)s AND mp.destinataire_id = %(user_id)s)
+    ORDER BY mp.date_envoi ASC;
+    """
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(query, {'user_id': user_id, 'autre_id': autre_id})
+            return curseur.fetchall()
+
+
+def envoyer_message_prive(expediteur_id, destinataire_id, contenu):
+    query = """
+    INSERT INTO message_prive (expediteur_id, destinataire_id, contenu, date_envoi)
+    VALUES (%(expediteur_id)s, %(destinataire_id)s, %(contenu)s, NOW())
+    """
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(query, {
+                'expediteur_id': expediteur_id,
+                'destinataire_id': destinataire_id,
+                'contenu': contenu
+            })
+
+def rechercher_coachs(recherche):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                """SELECT id, user_name, courriel, image, description, est_coach
+                   FROM utilisateur
+                   WHERE est_coach = 1
+                   AND (LOWER(user_name) LIKE %(recherche)s OR LOWER(courriel) LIKE %(recherche)s)
+                   ORDER BY user_name ASC""",
+                {'recherche': f"%{recherche.lower()}%"}
+            )
+            return curseur.fetchall()
+def ajouter_jeux_utilisateur(user_id, jeux_ids):
+    """Associe plusieurs jeux à un utilisateur"""
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            for jeu_id in jeux_ids:
+                curseur.execute(
+                    """INSERT INTO utilisateur_jeux (utilisateur_id, jeu_id)
+                       VALUES (%(user_id)s, %(jeu_id)s)""",
+                    {"user_id": user_id, "jeu_id": jeu_id}
+                )
+
+def obtenir_jeux_utilisateur(user_id):
+    """Récupère tous les jeux d'un utilisateur"""
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                """SELECT j.id, j.nom
+                   FROM jeux j
+                   JOIN utilisateur_jeux uj ON j.id = uj.jeu_id
+                   WHERE uj.utilisateur_id = %(user_id)s""",
+                {"user_id": user_id}
+            )
+            return curseur.fetchall()
+
+def obtenir_jeux():
+    """Récupère tous les jeux disponibles"""
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("SELECT id, nom FROM jeux ORDER BY nom ASC")
+            return curseur.fetchall()
+
+def obtenir_notifications(utilisateur_id):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("""
+                SELECT id, titre, message, date_envoi, lu, demande_id
+                FROM notifications
+                WHERE utilisateur_id = %s
+                ORDER BY date_envoi DESC
+            """, (utilisateur_id,))
+            return curseur.fetchall()
+
+def notifications_non_lues(utilisateur_id):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("""
+                SELECT COUNT(*) AS nb
+                FROM notifications
+                WHERE utilisateur_id = %s AND lu = FALSE
+            """, (utilisateur_id,))
+            resultat = curseur.fetchone()
+            if resultat:
+                return resultat["nb"]
+            else:
+                return 0
+
+def ajouter_demande(utilisateur_id, coach_id, objectif, message):
+    with creer_connexion() as conn:
+        with conn.cursor(dictionary=True) as curseur:
+            curseur.execute("""
+                INSERT INTO demandes_coach (utilisateur_id, coach_id, objectif, message, statut)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (utilisateur_id, coach_id, objectif, message, "en_attente"))
+            return curseur.lastrowid
+
+def marquer_demande_acceptee(demande_id):
+    with creer_connexion() as conn:
+        with conn.cursor() as curseur:
+            curseur.execute("UPDATE demandes_coach SET statut = 'acceptee' WHERE id = %s", (demande_id,))
+        conn.commit()
+
+def marquer_demande_refusee(demande_id):
+    with creer_connexion() as conn:
+        with conn.cursor() as curseur:
+            curseur.execute("UPDATE demandes_coach SET statut = 'refusee' WHERE id = %s", (demande_id,))
+        conn.commit()
+
+def obtenir_coach_par_id(coach_id):
+    with creer_connexion() as conn:
+        with conn.cursor(dictionary=True) as curseur:
+            curseur.execute("SELECT id, user_name FROM utilisateur WHERE id = %s AND est_coach = 1", (coach_id,))
+            return curseur.fetchone()
+def ajouter_notification(utilisateur_id, titre, message, demande_id=None):
+    with creer_connexion() as conn:
+        with conn.cursor(dictionary=True) as curseur:
+            curseur.execute("""
+                INSERT INTO notifications (utilisateur_id, titre, message, demande_id)
+                VALUES (%s, %s, %s, %s)
+            """, (utilisateur_id, titre, message, demande_id))
+        conn.commit()
+def supprimer_notification_avec_demande(demande_id):
+    with creer_connexion() as conn:
+        with conn.cursor() as curseur:
+            curseur.execute("DELETE FROM notifications WHERE demande_id = %s", (demande_id,))
+        conn.commit()
