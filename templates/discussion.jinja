@@ -56,11 +56,8 @@
         {% endif %}
     </div>
 
-
-    {% if est_connecte %}
+{% if session.get('user_name') %}
     <form method="POST" class="message-form">
-        <input type="hidden" name="auteur" value="{{ session.user_name }}">
-        
         <div class="form-group">
             <label for="contenu">Votre réponse</label>
             <textarea id="contenu" name="contenu" required rows="5" 

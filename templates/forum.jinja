@@ -4,21 +4,16 @@
 <div class="forum-container">
     
     <div class="forum-header">
-    <div class="forum-title">
-        <h1>Forum {{ nom_jeu }}</h1>
-        <p class="forum-subtitle">Niveau : {{ nom_niveau }}</p>
+        <div class="forum-title">
+            <h1>Forum {{ nom_jeu }}</h1>
+            <p class="forum-subtitle">Niveau : {{ nom_niveau }}</p>
+        </div>
+         <a href="{{ url_for('forum.nouvelle_discussion') }}" class="btn btn-primary btn-large">
+                    <span class="icon">+</span> Créer une discussion
+                </a>
     </div>
-    {% if est_connecte %}
-        <a href="{{ url_for('forum.nouvelle_discussion') }}" class="btn btn-primary btn-large">
-            <span class="icon">+</span> Créer une discussion
-        </a>
-    {% else %}
-        <a href="{{ url_for('compte.connexion') }}" class="btn btn-secondary btn-large">
-             Connectez-vous pour créer une discussion
-        </a>
-    {% endif %}
-</div>
 
+    <!-- Formulaire de recherche et filtres -->
     <div class="forum-filters">
         <form method="GET" action="{{ url_for('forum.index') }}" class="search-bar">
             <input type="text" name="search" placeholder="Rechercher un sujet..." 
@@ -48,43 +43,44 @@
         </div>
     </div>
 
+    <!-- Liste des discussions -->
     <div class="topics-list">
         {% if discussions %}
             {% for discussion in discussions %}
-            <div class="topic-card {% if discussion.epingle %}pinned{% endif %}" data-category="{{ discussion.categorie }}">
-                {% if discussion.epingle %}
-                <div class="topic-pin">📌</div>
-                {% endif %}
-                
-                <div class="topic-avatar">
-                    <div class="avatar-placeholder">{{ discussion.auteur[0]|upper }}</div>
-                </div>
-                
-                <div class="topic-content">
-                    <a href="{{ url_for('forum.voir_discussion', discussion_id=discussion.id) }}">
+            <a href="{{ url_for('forum.voir_discussion', discussion_id=discussion.id) }}" class="topic-card-link">
+                <div class="topic-card {% if discussion.epingle %}pinned{% endif %}" data-category="{{ discussion.categorie }}">
+                    {% if discussion.epingle %}
+                    <div class="topic-pin">📌</div>
+                    {% endif %}
+                    
+                    <div class="topic-avatar">
+                        <div class="avatar-placeholder">{{ discussion.auteur[0]|upper }}</div>
+                    </div>
+                    
+                    <div class="topic-content">
                         <h3 class="topic-title">{{ discussion.titre }}</h3>
-                    </a>
-                    <div class="topic-meta">
-                        <span class="topic-author">{{ discussion.auteur }}</span>
-                        <span class="topic-date">{{ discussion.date_creation.strftime('%d/%m/%Y à %H:%M') if discussion.date_creation else 'Date inconnue' }}</span>
-                        <span class="topic-category category-{{ discussion.categorie }}">
-                            {{ discussion.categorie|capitalize }}
-                        </span>
+                        <div class="topic-meta">
+                            <span class="topic-author">{{ discussion.auteur }}</span>
+                            <span class="topic-date">{{ discussion.date_creation.strftime('%d/%m/%Y à %H:%M') if discussion.date_creation else 'Date inconnue' }}</span>
+                            <span class="topic-category category-{{ discussion.categorie }}">
+                                {{ discussion.categorie|capitalize }}
+                            </span>
+                        </div>
+                        <p class="topic-preview">{{ discussion.contenu[:150] }}{% if discussion.contenu|length > 150 %}...{% endif %}</p>
                     </div>
-                    <p class="topic-preview">{{ discussion.contenu[:150] }}{% if discussion.contenu|length > 150 %}...{% endif %}</p>
+                    
+                    <div class="topic-stats">
+                        <div class="stat">
+                            <span class="stat-number">{{ discussion.vues }}</span>
+                            <span class="stat-label">👁️</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">{{ discussion.nombre_messages if discussion.nombre_messages else 0 }}</span>
+                            <span class="stat-label">💬</span>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="topic-stats">
-                    <div class="stat">
-                        <span class="stat-number">{{ discussion.vues }}</span>
-                        <span class="stat-label">👁️</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">{{ discussion.nombre_messages if discussion.nombre_messages else 0 }}</span>
-                        <span class="stat-label">💬</span>
-                    </div>
-                </div>
-            </div>
+            </a>
             {% endfor %}
         {% else %}
             <div class="no-discussions">
@@ -116,7 +112,7 @@
     </div>
 
     {% if discussions %}
-   
+    <!-- Pagination -->
     <div class="pagination">
         <button class="page-btn" disabled>← Précédent</button>
         <button class="page-btn active">1</button>
