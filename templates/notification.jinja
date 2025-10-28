@@ -19,6 +19,9 @@
                     class="btn btn-sm btn-success me-1">Accepter</a>
                 <a href="{{ url_for('notification.refuser_demande', demande_id=notif.demande_id) }}"
                     class="btn btn-sm btn-danger">Refuser</a>
+                {% elif notif.autre_id %}
+                    <a href="{{ url_for('message.conversation', autre_id=notif.autre_id) }}"
+                    class="btn btn-sm btn-primary me-1">Voir le message</a>
                 {% endif %}
                 <span class="badge bg-secondary">{{ notif.date_envoi if notif.date_envoi else "Aujourd'hui" }}</span>
             </div>
