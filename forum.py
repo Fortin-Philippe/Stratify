@@ -117,7 +117,7 @@ def nouvelle_discussion():
     
     titre = request.form.get('titre')
     contenu = request.form.get('contenu')
-    auteur = request.form.get('auteur')
+    auteur = session.get('user_name')
     categorie = request.form.get('categorie', 'discussion')
     
     if not titre or not contenu or not auteur:
@@ -152,7 +152,7 @@ def voir_discussion(discussion_id):
 
     if request.method == 'POST':
         contenu = request.form.get('contenu')
-        auteur = request.form.get('auteur')
+        auteur = session.get('user_name')
 
         if not contenu or not auteur:
             flash('Tous les champs sont requis', 'error')
