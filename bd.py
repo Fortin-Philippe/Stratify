@@ -369,3 +369,19 @@ def marquer_notifications_comme_lues(utilisateur_id):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute(query, (utilisateur_id,))
+
+def est_admin(user_id):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                "SELECT 1 FROM admin WHERE id_utilisateur = %(id)s",
+                {"id": user_id}
+            )
+            return curseur.fetchone() is not None
+
+
+def get_tous_les_utilisateurs():
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("SELECT id, user_name, courriel, description, est_coach, image FROM utilisateur")
+            return curseur.fetchall()

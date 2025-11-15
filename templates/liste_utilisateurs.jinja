@@ -1,0 +1,32 @@
+{% extends 'base.jinja' %}
+{%block content%}
+<h2>Liste des utilisateurs</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Courriel</th>
+            <th>Coach</th>
+            <th>Détails</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for u in utilisateurs %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.user_name }}</td>
+            <td>{{ u.courriel }}</td>
+            <td>{{ "Oui" if u.est_coach else "Non" }}</td>
+            <td>
+                <a class="btn btn-primary btn-sm" href="{{ url_for('admin.detail_utilisateur', id_utilisateur=u.id) }}">
+                    Voir
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{%endblock%}

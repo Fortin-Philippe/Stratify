@@ -80,14 +80,14 @@ def connexion():
         else:
             utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
             if utilisateur:
-
                 session['user_id'] = utilisateur['id']
                 session['user_name'] = utilisateur['user_name']
-
                 session['est_coach'] = utilisateur['est_coach']
                 session['est_connecte'] = 1
-                flash("Vous êtes connecté !", "success")
 
+                session['est_admin'] = bd.est_admin(utilisateur['id'])
+
+                flash("Vous êtes connecté !", "success")
                 return redirect('/')
             else:
                 erreurs['connexion'] = "Le courriel ou le mot de passe est invalide."
