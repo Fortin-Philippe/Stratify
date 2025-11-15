@@ -85,7 +85,12 @@ def connexion():
                 session['est_coach'] = utilisateur['est_coach']
                 session['est_connecte'] = 1
 
-                session['est_admin'] = bd.est_admin(utilisateur['id'])
+                est_admin = bd.est_admin(utilisateur['id'])
+                session['est_admin'] = est_admin
+
+                if est_admin:
+                    bd.set_est_coach(utilisateur['id'], True)
+                    session['est_coach'] = 1
 
                 flash("Vous êtes connecté !", "success")
                 return redirect('/')

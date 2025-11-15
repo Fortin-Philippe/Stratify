@@ -379,9 +379,17 @@ def est_admin(user_id):
             )
             return curseur.fetchone() is not None
 
-
 def get_tous_les_utilisateurs():
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute("SELECT id, user_name, courriel, description, est_coach, image FROM utilisateur")
             return curseur.fetchall()
+        
+def set_est_coach(id_utilisateur, valeur: bool):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                "UPDATE utilisateur SET est_coach = %s WHERE id = %s",
+                (1 if valeur else 0, id_utilisateur)
+            )
+            conn.commit()
