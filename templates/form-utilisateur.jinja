@@ -4,8 +4,9 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
+
+        <div class="container mx-auto mt-5 p-4 rounded"
+     style="max-width: 600px; background-color:beige">
             <h2>Créer un utilisateur</h2>
             <form action="{{ url_for('compte.form_utilisateur') }}" method="POST" novalidate>
                 <div class="mb-3">
@@ -62,6 +63,6 @@
                 <button type="submit" class="btn btn-primary">Créer utilisateur</button>
             </form>
         </div>
-    </div>
+
 </div>
 {% endblock %}

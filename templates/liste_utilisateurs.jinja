@@ -1,5 +1,6 @@
 {% extends 'base.jinja' %}
 {%block content%}
+<div style="background-color: aliceblue;">
 <h2>Liste des utilisateurs</h2>
 
 <table class="table table-striped">
@@ -9,6 +10,7 @@
             <th>Nom</th>
             <th>Courriel</th>
             <th>Coach</th>
+            <th>Supprimer</th>
             <th>Détails</th>
         </tr>
     </thead>
@@ -20,6 +22,7 @@
             <td>{{ u.user_name }}</td>
             <td>{{ u.courriel }}</td>
             <td>{{ "Oui" if u.est_coach else "Non" }}</td>
+            <td>{{ "Oui" if u.est_supprime else "Non" }}</td>
             <td>
                 <a class="btn btn-primary btn-sm" href="{{ url_for('admin.detail_utilisateur', id_utilisateur=u.id) }}">
                     Voir
@@ -29,4 +32,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
 {%endblock%}

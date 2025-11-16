@@ -79,6 +79,9 @@ def connexion():
             erreurs['courriel'] = "Veuillez entrer un courriel valide."
         else:
             utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
+            if utilisateur and utilisateur.get("est_supprime"):
+                erreurs["connexion"] = "Ce compte a été supprimé."
+                return render_template("connexion.jinja", erreurs=erreurs)
             if utilisateur:
                 session['user_id'] = utilisateur['id']
                 session['user_name'] = utilisateur['user_name']

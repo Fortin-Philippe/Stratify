@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, abort
+from flask import Blueprint, render_template, session, abort, redirect, url_for
 import bd
 
 bp_admin = Blueprint("admin", __name__)
@@ -22,3 +22,15 @@ def detail_utilisateur(id_utilisateur):
         abort(404)
     utilisateur.pop("mdp", None)
     return render_template("detail_utilisateur.jinja", utilisateur=utilisateur)
+
+@bp_admin.route("/utilisateur/<int:id_utilisateur>/supprimer", methods=["POST"])
+def supprimer_utilisateur(id_utilisateur):
+    check_admin()
+
+    utilisateur = bd.get_utilisateur_par_id(id_utilisateur)
+    if not utilisateur:
+        abort(404)
+
+    bd.archiver_utilisateur(id_utilisateur)
+
+    return redirect(url_for("admin.liste_utilisateurs"))
