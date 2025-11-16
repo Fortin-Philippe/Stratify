@@ -79,15 +79,23 @@ def connexion():
             erreurs['courriel'] = "Veuillez entrer un courriel valide."
         else:
             utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
+            if utilisateur and utilisateur.get("est_supprime"):
+                erreurs["connexion"] = "Ce compte a été supprimé."
+                return render_template("connexion.jinja", erreurs=erreurs)
             if utilisateur:
-
                 session['user_id'] = utilisateur['id']
                 session['user_name'] = utilisateur['user_name']
-
                 session['est_coach'] = utilisateur['est_coach']
                 session['est_connecte'] = 1
-                flash("Vous êtes connecté !", "success")
 
+                est_admin = bd.est_admin(utilisateur['id'])
+                session['est_admin'] = est_admin
+
+                if est_admin:
+                    bd.set_est_coach(utilisateur['id'], True)
+                    session['est_coach'] = 1
+
+                flash("Vous êtes connecté !", "success")
                 return redirect('/')
             else:
                 erreurs['connexion'] = "Le courriel ou le mot de passe est invalide."

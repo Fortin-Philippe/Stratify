@@ -5,7 +5,8 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="container mx-auto mt-5 p-4 rounded"
+     style="max-width: 600px; background-color:beige">
             <h2>Connexion</h2>
             <form method="post" action="{{ url_for('compte.connexion') }}" novalidate>
                 <div class="mb-3">

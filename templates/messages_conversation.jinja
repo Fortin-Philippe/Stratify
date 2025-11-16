@@ -8,18 +8,38 @@
         <div class="col-12 col-md-10 col-lg-8 d-flex flex-column border rounded bg-dark text-light">
 
             <div class="py-3 border-bottom text-center">
-                <h4 class="mb-0 text-white">Conversation avec {{ autre_user.user_name }}</h4>
+                <h4 class="mb-0 text-white">Conversation avec {% if autre_user.archive %}
+                                Compte supprimé
+                                {% else %}
+                                {{ autre_user.user_name }}
+                                {% endif %}</h4>
             </div>
 
             <div id="chatMessages" class="flex-grow-1 overflow-auto p-3 bg-secondary bg-opacity-25">
                 {% for msg in messages %}
-                    <div class="mb-3 d-flex {% if msg.expediteur_id == session.user_id %}justify-content-end{% else %}justify-content-start{% endif %}">
-                        <div class="p-2 rounded {% if msg.expediteur_id == session.user_id %}bg-success text-white{% else %}bg-light text-dark{% endif %} w-75">
-                            <div><strong>{{ msg.expediteur_nom }}</strong></div>
-                            <div>{{ msg.contenu }}</div>
-                            <div class="small text-end">{{ msg.date_envoi }}</div>
+                <div
+                    class="mb-3 d-flex {% if msg.expediteur_id == session.user_id %}justify-content-end{% else %}justify-content-start{% endif %}">
+                    <div
+                        class="p-2 rounded {% if msg.expediteur_id == session.user_id %}bg-success text-white{% else %}bg-light text-dark{% endif %} w-75">
+                        <div>
+                            <strong>
+                                {% if utilisateurs[msg.expediteur_id].archive %}
+                                Compte supprimé
+                                {% else %}
+                                {{ msg.expediteur_nom }}
+                                {% endif %}
+                            </strong>
                         </div>
+                        <div>
+                            {% if msg.supprime %}
+                            <i>Message supprimé</i>
+                            {% else %}
+                            {{ msg.contenu }}
+                            {% endif %}
+                        </div>
+                        <div class="small text-end">{{ msg.date_envoi }}</div>
                     </div>
+                </div>
                 {% endfor %}
             </div>
 
