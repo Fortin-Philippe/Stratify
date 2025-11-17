@@ -13,9 +13,10 @@ def creer_connexion():
         user=os.getenv('BD_UTILISATEUR'),
         password=os.getenv('BD_MDP'),
         host=os.getenv('BD_SERVEUR'),
-        database=os.getenv('BD_NOM_SCHEMA'),
+        database="db_startify",
         raise_on_warnings=True
     )
+    
     conn.get_curseur = types.MethodType(get_curseur, conn)
     try:
         yield conn
@@ -166,6 +167,20 @@ def obtenir_coachs():
                    FROM utilisateur
                    WHERE est_coach = 1
                    ORDER BY user_name ASC"""
+            )
+            return curseur.fetchall()
+        
+def rechercher_coachs(nom_partiel):
+    """Récupère les coachs dont le nom correspond partiellement à la recherche"""
+    nom_partiel = f"%{nom_partiel}%"
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                """SELECT id, user_name, courriel, image, description, est_coach
+                   FROM utilisateur
+                   WHERE est_coach = 1 AND user_name LIKE %s
+                   ORDER BY user_name ASC""",
+                (nom_partiel,)
             )
             return curseur.fetchall()
         

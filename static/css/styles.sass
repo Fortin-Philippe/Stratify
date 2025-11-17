@@ -1050,3 +1050,43 @@ header
     justify-content: space-between
     align-items: center
     margin-bottom: 20px
+
+
+
+
+
+.suggestions-box 
+  position: absolute
+  top: 100%
+  left: 0
+  width: 100%
+  background: rgba($white, 0.05)
+  border: 2px solid rgba($green-main, 0.3)
+  border-radius: 10px
+  box-shadow: 0 4px 12px rgba($green-dark, 0.3)
+  max-height: 250px
+  overflow-y: auto
+  z-index: 1000
+  margin-top: 5px
+  font-size: 0.95em
+
+  div 
+    padding: 10px 15px
+    cursor: pointer
+    transition: all 0.2s ease
+    color: $white
+
+    &:hover 
+      background: rgba($green-main, 0.2)
+      color: $black-deep
+    
+
+    &.no-result 
+      cursor: default
+      color: rgba($white, 0.6)
+      &:hover 
+        background: transparent
+      
+    
+  
+

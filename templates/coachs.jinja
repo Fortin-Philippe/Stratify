@@ -9,11 +9,13 @@
     </div>
 
 
-    <form method="get" action="{{ url_for('coach.liste_coachs') }}" class="search-bar mb-4">
+    <form method="get" action="{{ url_for('bd.rechercher_coachs') }}" class="search-bar mb-4">
         <div class="input-group">
             <input type="text" name="elem" class="form-control" placeholder="Recherche par nom ou courriel..."
                 list="coach-list" value="{{ recherche }}">
             <button class="btn btn-primary" type="submit">Rechercher</button>
+            <div id="suggestions-box" class="suggestions-box"></div>
+
         </div>
     </form>
 
@@ -66,4 +68,50 @@
 {% endif %}
 
 </div>
+<script>
+const coachInput = document.getElementById("coach-search-input");
+const coachSuggestionsBox = document.getElementById("coach-suggestions-box");
+
+coachInput.addEventListener("input", async () => {
+    const query = coachInput.value.trim();
+    if (!query) {
+        coachSuggestionsBox.innerHTML = "";
+        coachSuggestionsBox.style.display = "none";
+        return;
+    }
+
+    try {
+        const response = await fetch(`/coachs/autocomplete_coach?query=${encodeURIComponent(query)}`);
+        const suggestions = await response.json();
+
+        if (suggestions.length === 0) {
+            coachSuggestionsBox.innerHTML = `<div class="no-result">Aucun coach trouvé</div>`;
+        } else {
+            coachSuggestionsBox.innerHTML = suggestions
+                .map(c => `<div data-id="${c.id}">${c.nom}</div>`).join("");
+        }
+
+        coachSuggestionsBox.style.display = "block";
+
+        Array.from(coachSuggestionsBox.children).forEach(child => {
+            child.addEventListener("click", () => {
+                coachInput.value = child.textContent;
+                coachSuggestionsBox.innerHTML = "";
+                coachSuggestionsBox.style.display = "none";
+                window.location.href = `/coachs?elem=${encodeURIComponent(child.textContent)}`;
+            });
+        });
+    } catch(err) {
+        console.error(err);
+    }
+});
+
+document.addEventListener("click", (e) => {
+    if (!coachSuggestionsBox.contains(e.target) && e.target !== coachInput) {
+        coachSuggestionsBox.style.display = "none";
+    }
+});
+</script>
+
+
 {% endblock %}

@@ -72,6 +72,24 @@ def form_utilisateur():
 def connexion():
     erreurs = {}
     if request.method == 'POST':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            courriel = request.form['courriel'].strip()
+            mdp = request.form['mdp'].strip()
+
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", courriel):
+                return {"success": False, "erreurs": {"courriel": "Veuillez entrer un courriel valide."}}, 400
+
+            utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
+            if utilisateur:
+                session['user_id'] = utilisateur['id']
+                session['user_name'] = utilisateur['user_name']
+                session['est_coach'] = utilisateur['est_coach']
+                session['est_connecte'] = 1
+                
+                return {"success": True, "message": "Vous êtes connecté !", "redirect": url_for('accueil.choisir_jeu')}, 200
+            else:
+                return {"success": False, "erreurs": {"connexion": "Le courriel ou le mot de passe est invalide."}}, 400
+
         courriel = request.form['courriel'].strip()
         mdp = request.form['mdp'].strip()
 
@@ -80,14 +98,11 @@ def connexion():
         else:
             utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
             if utilisateur:
-
                 session['user_id'] = utilisateur['id']
                 session['user_name'] = utilisateur['user_name']
-
                 session['est_coach'] = utilisateur['est_coach']
                 session['est_connecte'] = 1
                 flash("Vous êtes connecté !", "success")
-
                 return redirect('/')
             else:
                 erreurs['connexion'] = "Le courriel ou le mot de passe est invalide."
