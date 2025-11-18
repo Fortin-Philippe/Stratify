@@ -80,23 +80,6 @@ def connexion():
                 return {"success": False, "erreurs": {"courriel": "Veuillez entrer un courriel valide."}}, 400
 
             utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
-            if utilisateur:
-                session['user_id'] = utilisateur['id']
-                session['user_name'] = utilisateur['user_name']
-                session['est_coach'] = utilisateur['est_coach']
-                session['est_connecte'] = 1
-                
-                return {"success": True, "message": "Vous êtes connecté !", "redirect": url_for('accueil.choisir_jeu')}, 200
-            else:
-                return {"success": False, "erreurs": {"connexion": "Le courriel ou le mot de passe est invalide."}}, 400
-
-        courriel = request.form['courriel'].strip()
-        mdp = request.form['mdp'].strip()
-
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", courriel):
-            erreurs['courriel'] = "Veuillez entrer un courriel valide."
-        else:
-            utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
             if utilisateur and utilisateur.get("est_supprime"):
                 erreurs["connexion"] = "Ce compte a été supprimé."
                 return render_template("connexion.jinja", erreurs=erreurs)
@@ -105,8 +88,7 @@ def connexion():
                 session['user_name'] = utilisateur['user_name']
                 session['est_coach'] = utilisateur['est_coach']
                 session['est_connecte'] = 1
-
-
+                
                 est_admin = bd.est_admin(utilisateur['id'])
                 session['est_admin'] = est_admin
 
@@ -114,10 +96,9 @@ def connexion():
                     bd.set_est_coach(utilisateur['id'], True)
                     session['est_coach'] = 1
 
-                flash("Vous êtes connecté !", "success")
-                return redirect('/')
+                return {"success": True, "message": "Vous êtes connecté !", "redirect": url_for('accueil.choisir_jeu')}, 200
             else:
-                erreurs['connexion'] = "Le courriel ou le mot de passe est invalide."
+                return {"success": False, "erreurs": {"connexion": "Le courriel ou le mot de passe est invalide."}}, 400
 
     return render_template('connexion.jinja', erreurs=erreurs)
 

@@ -9,7 +9,7 @@
     </div>
 
 
-    <form method="get" action="{{ url_for('bd.rechercher_coachs') }}" class="search-bar mb-4">
+    <form method="get" action="{{ url_for('coach.liste_coachs') }}" class="search-bar mb-4">
         <div class="input-group">
             <input type="text" name="elem" class="form-control" placeholder="Recherche par nom ou courriel..."
                 list="coach-list" value="{{ recherche }}">
