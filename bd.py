@@ -424,14 +424,33 @@ def archiver_utilisateur(id_utilisateur):
         with conn.get_curseur() as curseur:
 
             curseur.execute(""" UPDATE utilisateur SET est_supprime = 1 WHERE id = %s """, (id_utilisateur,))
-
             curseur.execute(""" UPDATE messages SET supprime = 1 WHERE auteur_id = %s""", (id_utilisateur,))
-
-
             curseur.execute(""" UPDATE message_prive SET supprime = 1 WHERE expediteur_id = %s""", (id_utilisateur,))
 
-def est_utilisateur_admin(id_utilisateur):
+def rechercher_utilisateur(recherche):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("""
+                SELECT id, user_name, courriel, description, image, est_supprime
+                FROM utilisateur
+                WHERE est_supprime = 0
+                  AND (LOWER(user_name) LIKE %(recherche)s OR LOWER(courriel) LIKE %(recherche)s)
+                ORDER BY user_name ASC
+                LIMIT 20
+            """, {'recherche': f"%{recherche.lower()}%"})
+            return curseur.fetchall()
+def get_tous_utilisateurs():
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("""
+                SELECT id, user_name, courriel, description, image, est_supprime
+                FROM utilisateur
+                WHERE est_supprime = 0
+                ORDER BY user_name ASC
+            """)
+            return curseur.fetchall()
 
+def est_utilisateur_admin(id_utilisateur):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
     
