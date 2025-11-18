@@ -428,3 +428,12 @@ def archiver_utilisateur(id_utilisateur):
             curseur.execute(""" UPDATE messages SET supprime = 1 WHERE auteur_id = %s""", (id_utilisateur,))
 
             curseur.execute(""" UPDATE message_prive SET supprime = 1 WHERE expediteur_id = %s""", (id_utilisateur,))
+
+def est_utilisateur_admin(id_utilisateur):
+
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+    
+            curseur.execute("SELECT 1 FROM admin WHERE id_utilisateur = %s", (id_utilisateur,))
+            is_admin = curseur.fetchone() is not None
+    return is_admin

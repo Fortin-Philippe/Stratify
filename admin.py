@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, abort, redirect, url_for
+from flask import Blueprint, render_template, session, abort, redirect, url_for, flash
 import bd
 
 bp_admin = Blueprint("admin", __name__)
@@ -30,6 +30,9 @@ def supprimer_utilisateur(id_utilisateur):
     utilisateur = bd.get_utilisateur_par_id(id_utilisateur)
     if not utilisateur:
         abort(404)
+    if bd.est_utilisateur_admin(id_utilisateur):
+        flash(f"Impossible de supprimer l'utilisateur {utilisateur['user_name']} car il est également administrateur.", "error")
+        return redirect(url_for("admin.detail_utilisateur", id_utilisateur=id_utilisateur))
 
     bd.archiver_utilisateur(id_utilisateur)
 
