@@ -197,3 +197,14 @@ def supprimer_utilisateur():
     session.clear()
     flash("Compte supprimé avec succès.", "success")
     return redirect(url_for('accueil.choisir_jeu'))
+@bp_compte.route('/rechercher-utilisateur', methods=['GET'])
+def rechercher_utilisateur():
+    recherche = request.args.get('q', '').strip()
+    resultats = []
+    if recherche:
+        resultats = bd.rechercher_utilisateur(recherche)
+    else:
+        resultats = bd.get_tous_utilisateurs()
+    if 'user_id' in session:
+        resultats = [u for u in resultats if u['id'] != session['user_id']]
+    return render_template('recherche_joueur.jinja', recherche=recherche, resultats=resultats)
