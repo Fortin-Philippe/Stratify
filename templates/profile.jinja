@@ -25,10 +25,42 @@
        href="{{ url_for('compte.profile_modif') }}">
        Modifier le profil
     </a>
-    <form action="{{ url_for('compte.supprimer_utilisateur') }}" method="POST"
-          onsubmit="return confirm('Confirmer la suppression de votre compte ?')"
-          class="d-inline-block">
-        <button type="submit" class="btn btn-danger">Supprimer mon compte</button>
-    </form>
+    <form id="form-suppression" class="d-inline-block">
+    <button type="submit" class="btn btn-danger">Supprimer mon compte</button>
+</form>
+
+<script>
+document.getElementById("form-suppression").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const urlCheck = "{{ url_for('compte.verifier_suppression_profil') }}";
+    const urlDelete = "{{ url_for('compte.supprimer_utilisateur') }}";
+
+    const response = await fetch(urlCheck, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+    });
+
+    const data = await response.json();
+
+    if (!data.ok) {
+        alert(data.message || "Impossible de supprimer ce compte.");
+        return;
+    }
+
+    if (!confirm("Confirmer la suppression de votre compte ?")) {
+        return;
+    }
+
+    const deleteResponse = await fetch(urlDelete, {
+        method: "POST"
+    });
+
+    if (deleteResponse.redirected) {
+        window.location.href = deleteResponse.url;
+    }
+});
+</script>
+
 </div>
 {% endblock %}

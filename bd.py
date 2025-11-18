@@ -16,6 +16,7 @@ def creer_connexion():
         database=os.getenv('BD_NOM_SCHEMA'),
         raise_on_warnings=True
     )
+    
     conn.get_curseur = types.MethodType(get_curseur, conn)
     try:
         yield conn
@@ -168,7 +169,21 @@ def obtenir_coachs():
                    ORDER BY user_name ASC"""
             )
             return curseur.fetchall()
-
+        
+def rechercher_coachs(nom_partiel):
+    """Récupère les coachs dont le nom correspond partiellement à la recherche"""
+    nom_partiel = f"%{nom_partiel}%"
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                """SELECT id, user_name, courriel, image, description, est_coach
+                   FROM utilisateur
+                   WHERE est_coach = 1 AND user_name LIKE %s
+                   ORDER BY user_name ASC""",
+                (nom_partiel,)
+            )
+            return curseur.fetchall()
+        
 def supprimer_discussion(discussion_id):
     """Supprime une discussion et tous ses messages"""
     with creer_connexion() as conn:
@@ -409,10 +424,9 @@ def archiver_utilisateur(id_utilisateur):
         with conn.get_curseur() as curseur:
 
             curseur.execute(""" UPDATE utilisateur SET est_supprime = 1 WHERE id = %s """, (id_utilisateur,))
-
             curseur.execute(""" UPDATE messages SET supprime = 1 WHERE auteur_id = %s""", (id_utilisateur,))
-
             curseur.execute(""" UPDATE message_prive SET supprime = 1 WHERE expediteur_id = %s""", (id_utilisateur,))
+
 def rechercher_utilisateur(recherche):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
@@ -435,3 +449,12 @@ def get_tous_utilisateurs():
                 ORDER BY user_name ASC
             """)
             return curseur.fetchall()
+
+def est_utilisateur_admin(id_utilisateur):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+    
+            curseur.execute("SELECT 1 FROM admin WHERE id_utilisateur = %s", (id_utilisateur,))
+            is_admin = curseur.fetchone() is not None
+    return is_admin
+
