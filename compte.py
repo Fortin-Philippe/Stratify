@@ -71,33 +71,57 @@ def form_utilisateur():
 @bp_compte.route('/connexion', methods=['GET', 'POST'])
 def connexion():
     erreurs = {}
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
     if request.method == 'POST':
+
         courriel = request.form['courriel'].strip()
         mdp = request.form['mdp'].strip()
 
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", courriel):
-            erreurs['courriel'] = "Veuillez entrer un courriel valide."
-        else:
+
+        if is_ajax:
+            if not courriel or not mdp:
+                return {
+                    "success": False,
+                    "erreurs": {"connexion": "Veuillez remplir tous les champs."}
+                }, 400
+
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", courriel):
+                return {
+                    "success": False,
+                    "erreurs": {"courriel": "Veuillez entrer un courriel valide."}
+                }, 400
+
             utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
             if utilisateur:
-
                 if utilisateur.get('est_supprime', 0) == 1:
-                    erreurs['connexion'] = "Ce compte est désactivé et ne peut pas se connecter."
-                else:
-                    session['user_id'] = utilisateur['id']
-                    session['user_name'] = utilisateur['user_name']
-                    session['est_coach'] = utilisateur['est_coach']
-                    session['est_connecte'] = 1
-                    est_admin = bd.est_admin(utilisateur['id'])
-                    session['est_admin'] = est_admin
+                    return {
+                        "success": False,
+                        "erreurs": {"connexion": "Ce compte est désactivé."}
+                    }, 400
 
-                    if est_admin:
-                        bd.set_est_coach(utilisateur['id'], True)
-                        session['est_coach'] = 1
-                    flash("Vous êtes connecté !", "success")
-                    return redirect('/')
-            else:
-                erreurs['connexion'] = "Le courriel ou le mot de passe est invalide."
+                session['user_id'] = utilisateur['id']
+                session['user_name'] = utilisateur['user_name']
+                session['est_coach'] = utilisateur['est_coach']
+                session['est_connecte'] = 1
+
+                est_admin = bd.est_admin(utilisateur['id'])
+                session['est_admin'] = est_admin
+
+                if est_admin:
+                    bd.set_est_coach(utilisateur['id'], True)
+                    session['est_coach'] = 1
+
+                return {
+                    "success": True,
+                    "message": "Vous êtes connecté !",
+                    "redirect": url_for('accueil.choisir_jeu')
+                }, 200
+
+            return {
+                "success": False,
+                "erreurs": {"connexion": "Courriel ou mot de passe incorrect."}
+            }, 400
 
     return render_template('connexion.jinja', erreurs=erreurs)
 
@@ -186,7 +210,26 @@ def voir_profil(user_id):
 
     est_propre_profil = (user_id == session['user_id'])
     return render_template('profil_autre.jinja', utilisateur=utilisateur, est_propre_profil=est_propre_profil)
-@bp_compte.route('/profil/supprimer', methods=['POST'])
+@bp_compte.route('/profil/verifier-suppression', methods=['POST'])
+def verifier_suppression_profil():
+    if 'user_id' not in session:
+        return {"ok": False, "message": "Vous devez être connecté."}, 401
+
+    user_id = session['user_id']
+    utilisateur = bd.get_utilisateur_par_id(user_id)
+
+    if not utilisateur:
+        return {"ok": False, "message": "Utilisateur introuvable."}, 404
+
+    if bd.est_admin(user_id):
+        return {
+            "ok": False,
+            "message": "Un administrateur ne peut pas supprimer son propre compte."
+        }, 400
+
+    return {"ok": True}, 200
+
+
 @bp_compte.route('/profil/supprimer', methods=['POST'])
 def supprimer_utilisateur():
     if 'user_id' not in session:

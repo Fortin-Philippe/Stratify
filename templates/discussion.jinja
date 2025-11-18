@@ -2,6 +2,16 @@
 
 {% block content %}
 <div class="forum-container">
+{% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <a href="{{ url_for('forum.index') }}" class="btn-back">← Retour au forum</a>
 
     <div class="discussion-main">
@@ -84,7 +94,7 @@
     </div>
 
 {% if session.get('user_name') %}
-    <form method="POST" class="message-form">
+    <form method="POST" class="message-form" novalidate>
         <div class="form-group">
             <label for="contenu">Votre réponse</label>
             <textarea id="contenu" name="contenu" required rows="5" 

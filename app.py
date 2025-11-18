@@ -1,6 +1,7 @@
 
 
-from flask import Flask, render_template, redirect, request, url_for, session
+from gc import get_objects
+from flask import Flask, jsonify, render_template, redirect, request, url_for, session
 from bd import ajouter_utilisateur
 from accueil import bp as acceuil_bp
 from forum import forum_bp as forum_bp
@@ -63,3 +64,22 @@ def injecter_nb_notifications():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+@app.route("/autocomplete")
+def autocomplete():
+    query = request.args.get("query", "").lower()
+    results = [sujet['titre'] for sujet in get_objects() if query in sujet['titre'].lower()]
+    return jsonify(results[:5])
+
+@bp_coach.route("/autocomplete_coach")
+def autocomplete_coach():
+    query = request.args.get("query", "").strip()
+    if not query:
+        return []
+
+    coachs = bd.rechercher_coachs(query)  
+
+    
+    suggestions = [{"id": c["id"], "nom": c["user_name"]} for c in coachs]
+
+    return suggestions

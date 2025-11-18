@@ -8,7 +8,7 @@
         <div class="container mx-auto mt-5 p-4 rounded"
      style="max-width: 600px; background-color:beige">
             <h2>Connexion</h2>
-            <form method="post" action="{{ url_for('compte.connexion') }}" novalidate>
+            <form method="post" action="{{ url_for('compte.connexion') }}" novalidate id="formConnexion">
                 <div class="mb-3">
                     <label for="courriel" class="form-label">Courriel*</label>
                     <input type="email" class="form-control" id="courriel" name="courriel" required>
@@ -37,4 +37,78 @@
         </div>
     </div>
 </div>
+
+
+
+
+<script>
+document.getElementById('formConnexion').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var form = document.getElementById('formConnexion');
+    var btn = form.querySelector('button[type="submit"]');
+
+    document.querySelectorAll('.text-danger').forEach(e => e.remove());
+
+    btn.disabled = true;
+    btn.textContent = 'Connexion...';
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', form.action, true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+    xhr.onload = function() {
+        var data;
+
+        try {
+            data = JSON.parse(xhr.responseText);
+        } catch (e) {
+            console.error("Réponse serveur non JSON :", xhr.responseText);
+            btn.disabled = false;
+            btn.textContent = 'Se connecter';
+            return;
+        }
+
+        if (xhr.status === 200 && data.success) {
+            var msg = document.createElement('div');
+            msg.className = 'alert alert-success';
+            msg.textContent = data.message;
+            form.parentNode.insertBefore(msg, form);
+
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 1000);
+            return;
+        }
+
+        if (data.erreurs) {
+            if (data.erreurs.connexion) {
+                var eDiv = document.createElement('div');
+                eDiv.className = 'text-danger';
+                eDiv.textContent = data.erreurs.connexion;
+                form.insertBefore(eDiv, form.querySelector('.d-grid'));
+            }
+
+            if (data.erreurs.courriel) {
+                var input = document.getElementById('courriel');
+                var eDiv = document.createElement('div');
+                eDiv.className = 'text-danger';
+                eDiv.textContent = data.erreurs.courriel;
+                input.parentNode.appendChild(eDiv);
+            }
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Se connecter';
+    };
+
+    xhr.onerror = function() {
+        console.log('Erreur réseau');
+        btn.disabled = false;
+        btn.textContent = 'Se connecter';
+    };
+
+    xhr.send(new FormData(form));
+});
+</script>
 {% endblock %}
