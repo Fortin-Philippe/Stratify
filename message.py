@@ -11,7 +11,14 @@ def liste_conversations():
         return redirect(url_for('compte.connexion'))
 
     conversations = bd.obtenir_conversations_utilisateur(user_id)
-    return render_template('messages_liste.jinja', conversations=conversations)
+    admins = bd.obtenir_tous_admin()  
+    
+    return render_template(
+        "messages_liste.jinja",
+        conversations=conversations,
+        admins=admins
+    )
+    
 
 @message_bp.route("/conversation/<int:autre_id>", methods=["GET", "POST"])
 def conversation(autre_id):
@@ -32,3 +39,4 @@ def conversation(autre_id):
     utilisateurs = {u['id']: u for u in [bd.get_utilisateur_par_id(uid) for uid in utilisateurs_ids]}
     autre_user = bd.get_utilisateur_par_id(autre_id)
     return render_template("messages_conversation.jinja", messages=messages, autre_user=autre_user, utilisateurs=utilisateurs)
+

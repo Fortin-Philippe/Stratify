@@ -384,10 +384,33 @@ def est_admin(user_id):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute(
-                "SELECT 1 FROM admin WHERE id_utilisateur = %(id)s",
+                "SELECT 1 FROM admin WHERE id = %(id)s",
                 {"id": user_id}
             )
             return curseur.fetchone() is not None
+def obtenir_tous_admin():
+    """
+    Retourne tous les admin avec leurs informations utilisateur.
+    """
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("""
+                SELECT 
+                    u.id,
+                    u.user_name,
+                    u.courriel,
+                    u.description,
+                    u.est_coach,
+                    u.image,
+                    u.est_supprime
+                FROM utilisateur u
+                INNER JOIN admin a ON u.id = a.id
+                WHERE u.est_supprime = 0
+                ORDER BY u.user_name ASC
+            """)
+            
+            return curseur.fetchall()
+        
 
 def get_tous_les_utilisateurs():
     with creer_connexion() as conn:
