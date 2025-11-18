@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from markupsafe import escape
 import bd
 
 
@@ -106,17 +107,19 @@ def nouvelle_discussion():
     if not jeu_selectionne or not niveau_selectionne:
         flash('Sélection de jeu invalide', 'error')
         return redirect(url_for('accueil.choisir_jeu'))
-    
+
     if request.method == 'GET':
         nom_jeu = JEUX.get(jeu_selectionne, {}).get('nom', jeu_selectionne)
         nom_niveau = NOMS_NIVEAUX.get(jeu_selectionne, {}).get(niveau_selectionne, niveau_selectionne)
-        
-        return render_template('message.jinja',
-                             nom_jeu=nom_jeu,
-                             nom_niveau=nom_niveau)
-    
-    titre = request.form.get('titre')
-    contenu = request.form.get('contenu')
+
+        return render_template(
+            'message.jinja',
+            nom_jeu=nom_jeu,
+            nom_niveau=nom_niveau
+        )
+
+    titre = request.form.get('titre', '').strip()
+    contenu = request.form.get('contenu', '').strip()
     auteur = session.get('user_name')
     auteur_id = session.get('user_id')
     categorie = request.form.get('categorie', 'discussion')
@@ -136,7 +139,6 @@ def nouvelle_discussion():
     }
     
     discussion_id = bd.creer_discussion(discussion_data)
-    
     flash('Discussion créée avec succès !', 'success')
     return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
 
@@ -153,13 +155,23 @@ def voir_discussion(discussion_id):
     bd.incrementer_vues(discussion_id)
 
     if request.method == 'POST':
-        contenu = request.form.get('contenu')
+        if not session.get('user_id'):
+            flash("Vous devez être connecté pour répondre.", "error")
+            return redirect(url_for('compte.connexion'))
+
+        contenu = request.form.get('contenu', '').strip()
         auteur = session.get('user_name')
         auteur_id = session.get('user_id')
 
-        if not contenu or not auteur:
-            flash('Tous les champs sont requis', 'error')
+        if not contenu:
+            flash("Le contenu du message ne peut pas être vide.", "error")
             return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
+
+        if len(contenu) > 2000:
+            flash("Le message est trop long (maximum 2000 caractères).", "error")
+            return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
+
+        contenu = escape(contenu)
 
         message_data = {
             'contenu': contenu,

@@ -30,23 +30,55 @@
 
     <hr class="my-4">
     <p><strong>ID utilisateur :</strong> {{ utilisateur.id }}</p>
-    <p><strong>Est supprimer :</strong>{% if utilisateur.est_supprime %}
+    <p><strong>Est archivé :</strong>{% if utilisateur.est_supprime %}
         Oui
         {% else %}
         Non
         {% endif %} </p>
-    {% if utilisateur.est_admin %}
-    <p><span class="badge bg-danger">Administrateur</span></p>
-    {% endif %}
     <div class="text-center mt-4">
         <a href="{{ url_for('message.conversation', autre_id=utilisateur.id) }}" class="btn btn-primary">
             Envoyer un message
         </a>
     </div>
-    <form class="text-center mt-4" action="{{ url_for('admin.supprimer_utilisateur', id_utilisateur=utilisateur.id) }}" method="POST"
-        onsubmit="return confirm('Voulez-vous vraiment supprimer ce compte ?');">
-        <button type="submit" class="btn btn-danger text-center mt-4">Supprimer ce compte</button>
-    </form>
+    <form id="form-suppression" class="text-center mt-4">
+    <button type="submit" class="btn btn-danger text-center mt-4">Supprimer ce compte</button>
+</form>
+
+<script>
+document.getElementById("form-suppression").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const userId = {{ utilisateur.id }};
+    const urlCheck = "{{ url_for('admin.verifier_suppression', id_utilisateur=utilisateur.id) }}";
+    const urlDelete = "{{ url_for('admin.supprimer_utilisateur', id_utilisateur=utilisateur.id) }}";
+    const response = await fetch(urlCheck, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+
+    const data = await response.json();
+
+    if (!data.ok) {
+        alert(data.message || "Une erreur est survenue.");
+        return;
+    }
+
+    if (!confirm("Voulez-vous vraiment supprimer ce compte ?")) {
+        return;
+    }
+
+    const deleteResponse = await fetch(urlDelete, {
+        method: "POST"
+    });
+
+    if (deleteResponse.redirected) {
+        window.location.href = deleteResponse.url;
+    }
+});
+</script>
+
 
 </div>
 {% endblock %}
