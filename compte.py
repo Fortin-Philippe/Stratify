@@ -80,23 +80,23 @@ def connexion():
                 return {"success": False, "erreurs": {"courriel": "Veuillez entrer un courriel valide."}}, 400
 
             utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
-            if utilisateur and utilisateur.get("est_supprime"):
-                erreurs["connexion"] = "Ce compte a été supprimé."
-                return render_template("connexion.jinja", erreurs=erreurs)
             if utilisateur:
-                session['user_id'] = utilisateur['id']
-                session['user_name'] = utilisateur['user_name']
-                session['est_coach'] = utilisateur['est_coach']
-                session['est_connecte'] = 1
-                
-                est_admin = bd.est_admin(utilisateur['id'])
-                session['est_admin'] = est_admin
 
-                if est_admin:
-                    bd.set_est_coach(utilisateur['id'], True)
-                    session['est_coach'] = 1
 
-                return {"success": True, "message": "Vous êtes connecté !", "redirect": url_for('accueil.choisir_jeu')}, 200
+                if utilisateur.get('est_supprime', 0) == 1:
+                    erreurs['connexion'] = "Ce compte est désactivé et ne peut pas se connecter."
+                else:
+                    session['user_id'] = utilisateur['id']
+                    session['user_name'] = utilisateur['user_name']
+                    session['est_coach'] = utilisateur['est_coach']
+                    session['est_connecte'] = 1
+                    est_admin = bd.est_admin(utilisateur['id'])
+                    session['est_admin'] = est_admin
+
+                    if est_admin:
+                        bd.set_est_coach(utilisateur['id'], True)
+                        session['est_coach'] = 1
+                    return {"success": True, "message": "Vous êtes connecté !", "redirect": url_for('accueil.choisir_jeu')}, 200
             else:
                 return {"success": False, "erreurs": {"connexion": "Le courriel ou le mot de passe est invalide."}}, 400
 
@@ -187,3 +187,20 @@ def voir_profil(user_id):
 
     est_propre_profil = (user_id == session['user_id'])
     return render_template('profil_autre.jinja', utilisateur=utilisateur, est_propre_profil=est_propre_profil)
+@bp_compte.route('/profil/supprimer', methods=['POST'])
+@bp_compte.route('/profil/supprimer', methods=['POST'])
+def supprimer_utilisateur():
+    if 'user_id' not in session:
+        flash("Vous devez être connecté pour supprimer votre compte.", "danger")
+        return redirect(url_for('compte.connexion'))
+
+    user_id = session['user_id']
+    utilisateur = bd.get_utilisateur_par_id(user_id)
+
+    if not utilisateur:
+        flash("Utilisateur introuvable.", "danger")
+        return redirect(url_for('accueil.choisir_jeu'))
+    bd.archiver_utilisateur(user_id)
+    session.clear()
+    flash("Compte supprimé avec succès.", "success")
+    return redirect(url_for('accueil.choisir_jeu'))
