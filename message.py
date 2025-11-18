@@ -27,5 +27,8 @@ def conversation(autre_id):
             return redirect(url_for("message.conversation", autre_id=autre_id))
 
     messages = bd.obtenir_messages_prives(user_id, autre_id)
+    utilisateurs_ids = {msg['expediteur_id'] for msg in messages}
+    utilisateurs_ids.add(autre_id)
+    utilisateurs = {u['id']: u for u in [bd.get_utilisateur_par_id(uid) for uid in utilisateurs_ids]}
     autre_user = bd.get_utilisateur_par_id(autre_id)
-    return render_template("messages_conversation.jinja", messages=messages, autre_user=autre_user)
+    return render_template("messages_conversation.jinja", messages=messages, autre_user=autre_user, utilisateurs=utilisateurs)

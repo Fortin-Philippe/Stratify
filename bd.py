@@ -163,7 +163,7 @@ def obtenir_coachs():
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute(
-                """SELECT id, user_name, courriel, image, description, est_coach
+                """SELECT id, user_name, courriel, image, description, est_coach, est_supprime
                    FROM utilisateur
                    WHERE est_coach = 1
                    ORDER BY user_name ASC"""
@@ -211,11 +211,17 @@ def obtenir_message(message_id):
 def obtenir_conversations_utilisateur(user_id):
     query = """
     SELECT 
-        u.id AS autre_id, 
-        u.user_name, 
+        u.id AS id,
+        u.user_name,
         u.image,
+        u.est_supprime,
         MAX(mp.date_envoi) AS date_message,
-        SUBSTRING_INDEX(MAX(CONCAT(mp.date_envoi, '|||', mp.contenu)), '|||', -1) AS dernier_message
+        MAX(
+            CASE 
+                WHEN mp.supprime = TRUE THEN 'message supprimé'
+                ELSE mp.contenu
+            END
+        ) AS dernier_message
     FROM message_prive mp
     JOIN utilisateur u 
         ON u.id = CASE 
@@ -223,7 +229,7 @@ def obtenir_conversations_utilisateur(user_id):
             ELSE mp.expediteur_id 
         END
     WHERE mp.expediteur_id = %(id)s OR mp.destinataire_id = %(id)s
-    GROUP BY u.id, u.user_name, u.image
+    GROUP BY u.id, u.user_name, u.image, u.est_supprime
     ORDER BY date_message DESC;
     """
     
@@ -234,7 +240,11 @@ def obtenir_conversations_utilisateur(user_id):
 
 def obtenir_messages_prives(user_id, autre_id):
     query = """
-    SELECT mp.*, u.user_name AS expediteur_nom, u.image AS expediteur_image
+    SELECT mp.*, u.user_name AS expediteur_nom, u.image AS expediteur_image, u.est_supprime,
+    CASE 
+        WHEN mp.supprime = TRUE THEN 'message supprimé'
+        ELSE mp.contenu
+    END AS contenu
     FROM message_prive mp
     JOIN utilisateur u ON mp.expediteur_id = u.id
     WHERE (mp.expediteur_id = %(user_id)s AND mp.destinataire_id = %(autre_id)s)
@@ -275,7 +285,7 @@ def rechercher_coachs(recherche):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute(
-                """SELECT id, user_name, courriel, image, description, est_coach
+                """SELECT id, user_name, courriel, image, description, est_coach, est_supprime
                    FROM utilisateur
                    WHERE est_coach = 1
                    AND (LOWER(user_name) LIKE %(recherche)s OR LOWER(courriel) LIKE %(recherche)s)
@@ -384,3 +394,37 @@ def marquer_notifications_comme_lues(utilisateur_id):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute(query, (utilisateur_id,))
+
+def est_admin(user_id):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                "SELECT 1 FROM admin WHERE id_utilisateur = %(id)s",
+                {"id": user_id}
+            )
+            return curseur.fetchone() is not None
+
+def get_tous_les_utilisateurs():
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("SELECT id, user_name, courriel, description, est_coach, image, est_supprime FROM utilisateur")
+            return curseur.fetchall()
+        
+def set_est_coach(id_utilisateur, valeur: bool):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                "UPDATE utilisateur SET est_coach = %s WHERE id = %s",
+                (1 if valeur else 0, id_utilisateur)
+            )
+            conn.commit()
+
+def archiver_utilisateur(id_utilisateur):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+
+            curseur.execute(""" UPDATE utilisateur SET est_supprime = 1 WHERE id = %s """, (id_utilisateur,))
+
+            curseur.execute(""" UPDATE messages SET supprime = 1 WHERE auteur_id = %s""", (id_utilisateur,))
+
+            curseur.execute(""" UPDATE message_prive SET supprime = 1 WHERE expediteur_id = %s""", (id_utilisateur,))

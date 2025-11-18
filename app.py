@@ -7,6 +7,7 @@ from accueil import bp as acceuil_bp
 from forum import forum_bp as forum_bp
 from compte import bp_compte
 from coach import bp_coach
+from admin import bp_admin
 
 from notification import bp_notification
 from message import message_bp
@@ -20,6 +21,7 @@ app.register_blueprint(bp_compte)
 app.register_blueprint(acceuil_bp)
 app.register_blueprint(forum_bp)
 app.register_blueprint(bp_coach)
+app.register_blueprint(bp_admin)
 
 app.register_blueprint(bp_notification)
 app.register_blueprint(message_bp)

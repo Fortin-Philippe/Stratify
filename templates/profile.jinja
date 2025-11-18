@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container mx-auto mt-5 p-4 rounded"
-     style="max-width: 600px; background-color: rgb(232, 245, 233);">
+     style="max-width: 600px; background-color:beige">
     {% if utilisateur.image %}
         <div class="text-center mb-3">
             <img src="{{ url_for('static', filename=utilisateur.image) }}"
@@ -20,8 +20,8 @@
     {% if utilisateur.est_coach %}
                 <span class="badge bg-success">Coach</span>
     {% endif %}
-
-
-    <a class="btn btn-warning mt-3" href="{{ url_for('compte.profile_modif') }}">Modifier le profil</a>
+    <div class="text-center">
+    <a class="btn btn-warning text-center mt-4" href="{{ url_for('compte.profile_modif') }}">Modifier le profil</a>
+    </div>
 </div>
 {% endblock %}

@@ -18,11 +18,23 @@
                             alt="Profil par défaut" class="rounded-circle me-3" width="40" height="40">
                         {% endif %}
                         <div>
-                            <strong>{{ conv.user_name }}</strong><br>
-                            <small>{{ conv.dernier_message or "Aucun message" }}</small>
+                            <strong>
+                                {% if conv.est_supprime %}
+                                    Compte supprimé
+                                {% else %}
+                                    {{ conv.user_name }}
+                                {% endif %}
+                            </strong><br>
+                            <small>
+                                {% if conv.est_supprime %}
+                                    <i>Message supprimé</i>
+                                {% else %}
+                                    {{ conv.dernier_message or "Aucun message" }}
+                                {% endif %}
+                            </small>
                         </div>
                     </div>
-                    <a href="{{ url_for('message.conversation', autre_id=conv.autre_id) }}" class="btn btn-primary btn-sm">Ouvrir</a>
+                    <a href="{{ url_for('message.conversation', autre_id=conv.id) }}" class="btn btn-primary btn-sm">Ouvrir</a>
                 </li>
             {% endfor %}
         </ul>

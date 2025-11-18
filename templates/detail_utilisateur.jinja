@@ -1,0 +1,52 @@
+{% extends "base.jinja" %}
+{% block title %}Profil de {{ utilisateur.user_name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-5 p-4 rounded" style="max-width: 600px; background-color: rgb(232, 245, 233);">
+
+    <div class="text-center mb-3">
+        {% if utilisateur.image %}
+        <img src="{{ url_for('static', filename=utilisateur.image) }}" alt="{{ utilisateur.user_name }}"
+            class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid darkgreen;">
+        {% else %}
+        <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center mx-auto"
+            style="width: 150px; height: 150px; font-size: 3rem;">
+            {{ utilisateur.user_name[0]|upper }}
+        </div>
+        {% endif %}
+    </div>
+
+    <h1 class="text-center mb-3" style="color: darkgreen;">{{ utilisateur.user_name }}</h1>
+
+    <p class="text-center">{{ utilisateur.courriel }}</p>
+
+    <p><strong>Description :</strong>
+        {{ utilisateur.description or "Aucune description fournie." }}
+    </p>
+
+    {% if utilisateur.est_coach %}
+    <span class="badge bg-success">Coach</span>
+    {% endif %}
+
+    <hr class="my-4">
+    <p><strong>ID utilisateur :</strong> {{ utilisateur.id }}</p>
+    <p><strong>Est supprimer :</strong>{% if utilisateur.est_supprime %}
+        Oui
+        {% else %}
+        Non
+        {% endif %} </p>
+    {% if utilisateur.est_admin %}
+    <p><span class="badge bg-danger">Administrateur</span></p>
+    {% endif %}
+    <div class="text-center mt-4">
+        <a href="{{ url_for('message.conversation', autre_id=utilisateur.id) }}" class="btn btn-primary">
+            Envoyer un message
+        </a>
+    </div>
+    <form class="text-center mt-4" action="{{ url_for('admin.supprimer_utilisateur', id_utilisateur=utilisateur.id) }}" method="POST"
+        onsubmit="return confirm('Voulez-vous vraiment supprimer ce compte ?');">
+        <button type="submit" class="btn btn-danger text-center mt-4">Supprimer ce compte</button>
+    </form>
+
+</div>
+{% endblock %}
