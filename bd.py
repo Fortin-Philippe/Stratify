@@ -13,7 +13,7 @@ def creer_connexion():
         user=os.getenv('BD_UTILISATEUR'),
         password=os.getenv('BD_MDP'),
         host=os.getenv('BD_SERVEUR'),
-        database="db_startify",
+        database=os.getenv('BD_NOM_SCHEMA'),
         raise_on_warnings=True
     )
     
