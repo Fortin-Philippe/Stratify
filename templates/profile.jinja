@@ -20,8 +20,15 @@
     {% if utilisateur.est_coach %}
                 <span class="badge bg-success">Coach</span>
     {% endif %}
-    <div class="text-center">
-    <a class="btn btn-warning text-center mt-4" href="{{ url_for('compte.profile_modif') }}">Modifier le profil</a>
-    </div>
+    <div class="text-center mt-4">
+    <a class="btn btn-warning d-inline-block me-2"
+       href="{{ url_for('compte.profile_modif') }}">
+       Modifier le profil
+    </a>
+    <form action="{{ url_for('compte.supprimer_utilisateur') }}" method="POST"
+          onsubmit="return confirm('Confirmer la suppression de votre compte ?')"
+          class="d-inline-block">
+        <button type="submit" class="btn btn-danger">Supprimer mon compte</button>
+    </form>
 </div>
 {% endblock %}

@@ -168,13 +168,13 @@ def obtenir_coachs():
                    ORDER BY user_name ASC"""
             )
             return curseur.fetchall()
-        
+
 def supprimer_discussion(discussion_id):
     """Supprime une discussion et tous ses messages"""
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute('DELETE FROM messages WHERE discussion_id = %s', (discussion_id,))
-            
+
             curseur.execute('DELETE FROM discussions WHERE id = %s', (discussion_id,))
 
 
@@ -195,29 +195,29 @@ def obtenir_message(message_id):
 
 def obtenir_conversations_utilisateur(user_id):
     query = """
-    SELECT 
+    SELECT
         u.id AS id,
         u.user_name,
         u.image,
         u.est_supprime,
         MAX(mp.date_envoi) AS date_message,
         MAX(
-            CASE 
+            CASE
                 WHEN mp.supprime = TRUE THEN 'message supprimé'
                 ELSE mp.contenu
             END
         ) AS dernier_message
     FROM message_prive mp
-    JOIN utilisateur u 
-        ON u.id = CASE 
-            WHEN mp.expediteur_id = %(id)s THEN mp.destinataire_id 
-            ELSE mp.expediteur_id 
+    JOIN utilisateur u
+        ON u.id = CASE
+            WHEN mp.expediteur_id = %(id)s THEN mp.destinataire_id
+            ELSE mp.expediteur_id
         END
     WHERE mp.expediteur_id = %(id)s OR mp.destinataire_id = %(id)s
     GROUP BY u.id, u.user_name, u.image, u.est_supprime
     ORDER BY date_message DESC;
     """
-    
+
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute(query, {'id': user_id})
@@ -226,7 +226,7 @@ def obtenir_conversations_utilisateur(user_id):
 def obtenir_messages_prives(user_id, autre_id):
     query = """
     SELECT mp.*, u.user_name AS expediteur_nom, u.image AS expediteur_image, u.est_supprime,
-    CASE 
+    CASE
         WHEN mp.supprime = TRUE THEN 'message supprimé'
         ELSE mp.contenu
     END AS contenu
@@ -394,7 +394,7 @@ def get_tous_les_utilisateurs():
         with conn.get_curseur() as curseur:
             curseur.execute("SELECT id, user_name, courriel, description, est_coach, image, est_supprime FROM utilisateur")
             return curseur.fetchall()
-        
+
 def set_est_coach(id_utilisateur, valeur: bool):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
