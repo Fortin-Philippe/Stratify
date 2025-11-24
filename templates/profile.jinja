@@ -44,21 +44,23 @@ document.getElementById("form-suppression").addEventListener("submit", async fun
     const data = await response.json();
 
     if (!data.ok) {
-        alert(data.message || "Impossible de supprimer ce compte.");
+        const alert = document.createElement("div");
+        alert.className = "alert alert-danger alert-dismissible fade show";
+        alert.role = "alert";
+        alert.innerHTML = data.message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        document.querySelector(".container").prepend(alert);
         return;
     }
 
-    if (!confirm("Confirmer la suppression de votre compte ?")) {
-        return;
-    }
+    const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+    modal.show();
 
-    const deleteResponse = await fetch(urlDelete, {
-        method: "POST"
-    });
-
-    if (deleteResponse.redirected) {
-        window.location.href = deleteResponse.url;
-    }
+    document.getElementById('btn-confirmer-suppression').onclick = async () => {
+        const deleteResponse = await fetch(urlDelete, { method: "POST" });
+        if (deleteResponse.redirected) {
+            window.location.href = deleteResponse.url;
+        }
+    };
 });
 </script>
 
