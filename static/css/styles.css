@@ -11914,6 +11914,30 @@ header h1 a:hover {
   margin: 0 auto;
   padding: 20px;
 }
+.avatar-gallery {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+.avatar-option {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.avatar-option:hover {
+    border-color: #aaa;
+}
+.avatar-option.selected {
+    border-color: rgb(105,240,174);
+}
 .forum-container .btn-back {
   display: inline-flex;
   align-items: center;

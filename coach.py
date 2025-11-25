@@ -49,3 +49,15 @@ def demande_coach(coach_id):
 
     coach = bd.obtenir_coach_par_id(coach_id)
     return render_template("demande_coach.jinja", coach=coach)
+@bp_coach.route("/autocomplete_coach")
+def autocomplete_coach():
+    query = request.args.get("query", "").strip()
+    if not query:
+        return []
+
+    coachs = bd.rechercher_coachs(query)
+
+
+    suggestions = [{"id": c["id"], "nom": c["user_name"]} for c in coachs]
+
+    return suggestions

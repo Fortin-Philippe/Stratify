@@ -8,8 +8,8 @@
     <form method="POST">
         <div class="mb-3">
             <label class="form-label" style="color: rgb(105,240,174);">Nom</label>
-            <input class="form-control" type="text" name="user_name" value="{{ user.user_name }}"
-                   minlength="4" maxlength="60" required>
+            <input class="form-control" type="text" name="user_name" value="{{ user.user_name }}" minlength="4"
+                maxlength="60" required>
         </div>
 
         <div class="mb-3">
@@ -17,27 +17,31 @@
             <textarea class="form-control" name="description" rows="3" maxlength="300">{{ user.description }}</textarea>
             <small class="form-text text-light">{{ user.description|length }}/300 caractères</small>
         </div>
-
+        <div class="mb-3">
+            <label class="form-label" style="color: rgb(105,240,174);">Avatar</label>
+            <div class="avatar-gallery" id="avatar-gallery">
+                {% for fichier in images_profiles %}
+                <img src="{{ url_for('static', filename=fichier) }}" alt="avatar"
+                    class="avatar-option {% if user.image == fichier %}selected{% endif %}" data-value="{{ fichier }}">
+                {% endfor %}
+            </div>
+            <input type="hidden" name="image" id="selected-avatar" value="{{ user.image if user and user.image }}">
+        </div>
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="est_coach" name="est_coach" value="1" {% if
+                    user.est_coach %}checked{% endif %}>
+                <label class="form-check-label" for="est_coach">
+                    Je suis un coach
+                </label>
+            </div>
+        </div>
         <div class="mb-3">
             <label class="form-label" style="color: rgb(105,240,174);">Mot de passe (laisser vide si inchangé)</label>
             <input class="form-control" type="password" name="mdp" minlength="3" maxlength="100">
         </div>
 
-        <div class="mb-3">
-            <label class="form-label" style="color: rgb(105,240,174);">Avatar</label>
-            <select class="form-select" name="image">
-                <option value="">-- Choisir une image --</option>
-                {% for fichier in images_profiles %}
-                    <option value="{{ fichier }}" {% if user.image == fichier %}selected{% endif %}>
-                        {{ fichier.split('/')[-1] }}
-                    </option>
-                {% endfor %}
-            </select>
-            {% if user.image %}
-                <img src="{{ url_for('static', filename=user.image) }}" 
-                     alt="Avatar" class="img-thumbnail mt-2" width="120">
-            {% endif %}
-        </div>
+
 
         <button class="btn btn-success" type="submit">Enregistrer</button>
     </form>

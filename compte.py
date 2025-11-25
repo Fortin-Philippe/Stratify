@@ -2,7 +2,7 @@ import re
 import hashlib
 
 import os
-from werkzeug.utils import secure_filename
+
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 import bd
 
@@ -16,6 +16,8 @@ bp_compte = Blueprint('compte', __name__)
 def form_utilisateur():
     jeux = bd.obtenir_jeux()
     erreurs = {}
+    dossier_images = os.path.join(os.path.dirname(__file__), "static", "img", "profiles")
+    images_profiles = [f"img/profiles/{f}" for f in os.listdir(dossier_images) if f.endswith(".webp")]
     if request.method == 'POST':
         user_name = request.form['user_name'].strip()
 
@@ -36,19 +38,18 @@ def form_utilisateur():
             erreurs['mdp'] = "Le mot de passe doit avoir au moins 3 caractères."
         if mdp != mdp_confirmation:
             erreurs['mdp_confirmation'] = "Les mots de passe ne correspondent pas."
-
+        image_path = request.form.get("image", None)
         if erreurs:
             return render_template('form-utilisateur.jinja', erreurs=erreurs)
 
 
         utilisateur = {
             "user_name": user_name,
-
             "courriel": courriel,
             "mdp": hacher_mdp(mdp),
             "description": description,
             "est_coach": est_coach,
-            "image":None,
+            "image":image_path,
             "est_connecte": est_connecte
 
 
@@ -66,7 +67,7 @@ def form_utilisateur():
         flash("Utilisateur créé avec succès !", "success")
         return redirect(url_for('accueil.choisir_jeu'))
 
-    return render_template("form-utilisateur.jinja", erreurs=erreurs, jeux=jeux)
+    return render_template("form-utilisateur.jinja", erreurs=erreurs, jeux=jeux, images_profiles=images_profiles)
 
 @bp_compte.route('/connexion', methods=['GET', 'POST'])
 def connexion():
