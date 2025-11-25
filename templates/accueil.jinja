@@ -1,28 +1,41 @@
 {% extends 'base.jinja' %}
 {%block content%}
 <div>
+
+    {% if session.get('user_id') %}
+    <div class="mt-5 text-start">
+        <h3 class="titre text-start" style="font-size:1.2rem; font-weight:bold;">
+            Rechercher un utilisateur
+        </h3>
+        <form action="{{ url_for('compte.rechercher_utilisateur') }}" method="GET" class="d-inline-block">
+            <input type="text" name="q" placeholder="Nom d'utilisateur ou courriel" class="form-control d-inline-block"
+                style="width: 250px;">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </form>
+    </div>
     <h2 class="titre">Choix de votre jeu</h2>
+    {% endif %}
     <div class="card-container">
-        <a href="{{ url_for('accueil.selectionner_jeu', jeu_id='lol') }}" 
-           class="card {% if jeu_selectionne == 'lol' %}selected{% endif %}">
+        <a href="{{ url_for('accueil.selectionner_jeu', jeu_id='lol') }}"
+            class="card {% if jeu_selectionne == 'lol' %}selected{% endif %}">
             <h3>League of Legends</h3>
             <img src="{{ url_for('static', filename='img/img-lol/lol-img.jpg') }}" alt="Image LOL" class="card-img">
         </a>
-        
-        <a href="{{ url_for('accueil.selectionner_jeu', jeu_id='valorant') }}" 
-           class="card {% if jeu_selectionne == 'valorant' %}selected{% endif %}">
+
+        <a href="{{ url_for('accueil.selectionner_jeu', jeu_id='valorant') }}"
+            class="card {% if jeu_selectionne == 'valorant' %}selected{% endif %}">
             <h3>Valorant</h3>
             <img src="{{ url_for('static', filename='img/img-Valo/Valorant.jpg') }}" alt="Image Valo" class="card-img">
         </a>
-        
-        <a href="{{ url_for('accueil.selectionner_jeu', jeu_id='cs2') }}" 
-           class="card {% if jeu_selectionne == 'cs2' %}selected{% endif %}">
+
+        <a href="{{ url_for('accueil.selectionner_jeu', jeu_id='cs2') }}"
+            class="card {% if jeu_selectionne == 'cs2' %}selected{% endif %}">
             <h3>CS2</h3>
             <img src="{{ url_for('static', filename='img/img-Csgo/CS;GO.jpg') }}" alt="Image CS2" class="card-img">
         </a>
-        
-        <a href="{{ url_for('accueil.selectionner_jeu', jeu_id='rocketleague') }}" 
-           class="card {% if jeu_selectionne == 'rocketleague' %}selected{% endif %}">
+
+        <a href="{{ url_for('accueil.selectionner_jeu', jeu_id='rocketleague') }}"
+            class="card {% if jeu_selectionne == 'rocketleague' %}selected{% endif %}">
             <h3>Rocket League</h3>
             <img src="{{ url_for('static', filename='img/img-RL/rocket-league.jpg') }}" alt="Image RL" class="card-img">
         </a>
@@ -33,75 +46,81 @@
     <h2 class="titre">Choix de votre niveau</h2>
     <div class="card-container">
         {% if jeu_selectionne %}
-            {% if jeu_selectionne == 'lol' %}
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='bronze') }}" 
-                   class="card {% if niveau_selectionne == 'bronze' %}selected{% endif %}" >
-                    <h3>Bronze</h3>
-                    <img src="{{ url_for('static', filename='img/img-lol/lol_bronze.webp') }}" alt="Bronze" class="card-img">
-                </a>
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='platine') }}" 
-                   class="card {% if niveau_selectionne == 'platine' %}selected{% endif %}">
-                    <h3>Platine</h3>
-                    <img src="{{ url_for('static', filename='img/img-lol/lol_Platinum.webp') }}" alt="Platine" class="card-img">
-                </a>
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='grandmaster') }}" 
-                   class="card {% if niveau_selectionne == 'grandmaster' %}selected{% endif %}">
-                    <h3>GrandMaster</h3>
-                    <img src="{{ url_for('static', filename='img/img-lol/lol_grandmaster.webp') }}" alt="GrandMaster" class="card-img">
-                </a>
-            {% elif jeu_selectionne == 'valorant' %}
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='fer') }}" 
-                   class="card {% if niveau_selectionne == 'fer' %}selected{% endif %}">
-                    <h3>Fer</h3>
-                    <img src="{{ url_for('static', filename='img/img-valo/valo_bronze.webp') }}" alt="Fer" class="card-img">
-                </a>
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='Platine') }}" 
-                   class="card {% if niveau_selectionne == 'Platine' %}selected{% endif %}">
-                    <h3>Platine</h3>
-                    <img src="{{ url_for('static', filename='img/img-valo/valo_Platinum.webp') }}" alt="Platine" class="card-img">
-                </a>
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='immortal') }}" 
-                   class="card {% if niveau_selectionne == 'immortal' %}selected{% endif %}">
-                    <h3>Immortal</h3>
-                    <img src="{{ url_for('static', filename='img/img-valo/valo_Immortal.webp') }}" alt="Immortal" class="card-img">
-                </a>
-            {% elif jeu_selectionne == 'cs2' %}
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='Rank_15') }}" 
-                   class="card {% if niveau_selectionne == 'Rank_15' %}selected{% endif %}">
-                    <h3>Rank 15</h3>
-                    <img src="{{ url_for('static', filename='img/img-Csgo/Csgo-rank-level15.webp') }}" alt="Rank 15" class="card-img">
-                </a>
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='Rank_30') }}" 
-                   class="card {% if niveau_selectionne == 'Rank_30' %}selected{% endif %}">
-                    <h3>Rank 30</h3>
-                    <img src="{{ url_for('static', filename='img/img-Csgo/Csgo-ranklevel30.webp') }}" alt="Rank 35" class="card-img">
-                </a>
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='rank_40') }}" 
-                   class="card {% if niveau_selectionne == 'rank_40' %}selected{% endif %}">
-                    <h3>Rank 40</h3>
-                    <img src="{{ url_for('static', filename='img/img-Csgo/Csgo-ranklevel40.webp') }}" alt="Rank 40" class="card-img">
-                </a>
-            {% elif jeu_selectionne == 'rocketleague' %}
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='bronze') }}" 
-                   class="card {% if niveau_selectionne == 'bronze' %}selected{% endif %}">
-                    <h3>Bronze</h3>
-                    <img src="{{ url_for('static', filename='img/img-RL/Bronze_rl.png') }}" alt="Bronze" class="card-img">
-                </a>
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='or') }}" 
-                   class="card {% if niveau_selectionne == 'or' %}selected{% endif %}">
-                    <h3>Or</h3>
-                    <img src="{{ url_for('static', filename='img/img-RL/Gold_rl.png') }}" alt="Or" class="card-img">
-                </a>
-                <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='champion') }}" 
-                   class="card {% if niveau_selectionne == 'champion' %}selected{% endif %}">
-                    <h3>Champion</h3>
-                    <img src="{{ url_for('static', filename='img/img-RL/Champion_rl.png') }}" alt="Champion" class="card-img">
-                </a>
-            {% endif %}
+        {% if jeu_selectionne == 'lol' %}
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='bronze') }}"
+            class="card {% if niveau_selectionne == 'bronze' %}selected{% endif %}">
+            <h3>Bronze</h3>
+            <img src="{{ url_for('static', filename='img/img-lol/lol_bronze.webp') }}" alt="Bronze" class="card-img">
+        </a>
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='platine') }}"
+            class="card {% if niveau_selectionne == 'platine' %}selected{% endif %}">
+            <h3>Platine</h3>
+            <img src="{{ url_for('static', filename='img/img-lol/lol_Platinum.webp') }}" alt="Platine" class="card-img">
+        </a>
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='grandmaster') }}"
+            class="card {% if niveau_selectionne == 'grandmaster' %}selected{% endif %}">
+            <h3>GrandMaster</h3>
+            <img src="{{ url_for('static', filename='img/img-lol/lol_grandmaster.webp') }}" alt="GrandMaster"
+                class="card-img">
+        </a>
+        {% elif jeu_selectionne == 'valorant' %}
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='fer') }}"
+            class="card {% if niveau_selectionne == 'fer' %}selected{% endif %}">
+            <h3>Fer</h3>
+            <img src="{{ url_for('static', filename='img/img-valo/valo_bronze.webp') }}" alt="Fer" class="card-img">
+        </a>
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='Platine') }}"
+            class="card {% if niveau_selectionne == 'Platine' %}selected{% endif %}">
+            <h3>Platine</h3>
+            <img src="{{ url_for('static', filename='img/img-valo/valo_Platinum.webp') }}" alt="Platine"
+                class="card-img">
+        </a>
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='immortal') }}"
+            class="card {% if niveau_selectionne == 'immortal' %}selected{% endif %}">
+            <h3>Immortal</h3>
+            <img src="{{ url_for('static', filename='img/img-valo/valo_Immortal.webp') }}" alt="Immortal"
+                class="card-img">
+        </a>
+        {% elif jeu_selectionne == 'cs2' %}
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='Rank_15') }}"
+            class="card {% if niveau_selectionne == 'Rank_15' %}selected{% endif %}">
+            <h3>Rank 15</h3>
+            <img src="{{ url_for('static', filename='img/img-Csgo/Csgo-rank-level15.webp') }}" alt="Rank 15"
+                class="card-img">
+        </a>
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='Rank_30') }}"
+            class="card {% if niveau_selectionne == 'Rank_30' %}selected{% endif %}">
+            <h3>Rank 30</h3>
+            <img src="{{ url_for('static', filename='img/img-Csgo/Csgo-ranklevel30.webp') }}" alt="Rank 35"
+                class="card-img">
+        </a>
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='rank_40') }}"
+            class="card {% if niveau_selectionne == 'rank_40' %}selected{% endif %}">
+            <h3>Rank 40</h3>
+            <img src="{{ url_for('static', filename='img/img-Csgo/Csgo-ranklevel40.webp') }}" alt="Rank 40"
+                class="card-img">
+        </a>
+        {% elif jeu_selectionne == 'rocketleague' %}
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='bronze') }}"
+            class="card {% if niveau_selectionne == 'bronze' %}selected{% endif %}">
+            <h3>Bronze</h3>
+            <img src="{{ url_for('static', filename='img/img-RL/Bronze_rl.png') }}" alt="Bronze" class="card-img">
+        </a>
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='or') }}"
+            class="card {% if niveau_selectionne == 'or' %}selected{% endif %}">
+            <h3>Or</h3>
+            <img src="{{ url_for('static', filename='img/img-RL/Gold_rl.png') }}" alt="Or" class="card-img">
+        </a>
+        <a href="{{ url_for('accueil.selectionner_niveau', niveau_id='champion') }}"
+            class="card {% if niveau_selectionne == 'champion' %}selected{% endif %}">
+            <h3>Champion</h3>
+            <img src="{{ url_for('static', filename='img/img-RL/Champion_rl.png') }}" alt="Champion" class="card-img">
+        </a>
+        {% endif %}
         {% else %}
-            <div class="message-info" style="color:springgreen">
-                <p>Veuillez d'abord sélectionner un jeu ci-dessus</p>
-            </div>
+        <div class="message-info" style="color:springgreen">
+            <p>Veuillez d'abord sélectionner un jeu ci-dessus</p>
+        </div>
         {% endif %}
     </div>
 </div>

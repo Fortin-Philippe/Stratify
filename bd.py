@@ -16,6 +16,7 @@ def creer_connexion():
         database=os.getenv('BD_NOM_SCHEMA'),
         raise_on_warnings=True
     )
+    
     conn.get_curseur = types.MethodType(get_curseur, conn)
     try:
         yield conn
@@ -169,12 +170,26 @@ def obtenir_coachs():
             )
             return curseur.fetchall()
         
+def rechercher_coachs(nom_partiel):
+    """Récupère les coachs dont le nom correspond partiellement à la recherche"""
+    nom_partiel = f"%{nom_partiel}%"
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                """SELECT id, user_name, courriel, image, description, est_coach
+                   FROM utilisateur
+                   WHERE est_coach = 1 AND user_name LIKE %s
+                   ORDER BY user_name ASC""",
+                (nom_partiel,)
+            )
+            return curseur.fetchall()
+        
 def supprimer_discussion(discussion_id):
     """Supprime une discussion et tous ses messages"""
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute('DELETE FROM messages WHERE discussion_id = %s', (discussion_id,))
-            
+
             curseur.execute('DELETE FROM discussions WHERE id = %s', (discussion_id,))
 
 
@@ -195,29 +210,29 @@ def obtenir_message(message_id):
 
 def obtenir_conversations_utilisateur(user_id):
     query = """
-    SELECT 
+    SELECT
         u.id AS id,
         u.user_name,
         u.image,
         u.est_supprime,
         MAX(mp.date_envoi) AS date_message,
         MAX(
-            CASE 
+            CASE
                 WHEN mp.supprime = TRUE THEN 'message supprimé'
                 ELSE mp.contenu
             END
         ) AS dernier_message
     FROM message_prive mp
-    JOIN utilisateur u 
-        ON u.id = CASE 
-            WHEN mp.expediteur_id = %(id)s THEN mp.destinataire_id 
-            ELSE mp.expediteur_id 
+    JOIN utilisateur u
+        ON u.id = CASE
+            WHEN mp.expediteur_id = %(id)s THEN mp.destinataire_id
+            ELSE mp.expediteur_id
         END
     WHERE mp.expediteur_id = %(id)s OR mp.destinataire_id = %(id)s
     GROUP BY u.id, u.user_name, u.image, u.est_supprime
     ORDER BY date_message DESC;
     """
-    
+
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute(query, {'id': user_id})
@@ -226,7 +241,7 @@ def obtenir_conversations_utilisateur(user_id):
 def obtenir_messages_prives(user_id, autre_id):
     query = """
     SELECT mp.*, u.user_name AS expediteur_nom, u.image AS expediteur_image, u.est_supprime,
-    CASE 
+    CASE
         WHEN mp.supprime = TRUE THEN 'message supprimé'
         ELSE mp.contenu
     END AS contenu
@@ -417,7 +432,7 @@ def get_tous_les_utilisateurs():
         with conn.get_curseur() as curseur:
             curseur.execute("SELECT id, user_name, courriel, description, est_coach, image, est_supprime FROM utilisateur")
             return curseur.fetchall()
-        
+
 def set_est_coach(id_utilisateur, valeur: bool):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
@@ -432,7 +447,37 @@ def archiver_utilisateur(id_utilisateur):
         with conn.get_curseur() as curseur:
 
             curseur.execute(""" UPDATE utilisateur SET est_supprime = 1 WHERE id = %s """, (id_utilisateur,))
-
             curseur.execute(""" UPDATE messages SET supprime = 1 WHERE auteur_id = %s""", (id_utilisateur,))
-
             curseur.execute(""" UPDATE message_prive SET supprime = 1 WHERE expediteur_id = %s""", (id_utilisateur,))
+
+def rechercher_utilisateur(recherche):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("""
+                SELECT id, user_name, courriel, description, image, est_supprime
+                FROM utilisateur
+                WHERE est_supprime = 0
+                  AND (LOWER(user_name) LIKE %(recherche)s OR LOWER(courriel) LIKE %(recherche)s)
+                ORDER BY user_name ASC
+                LIMIT 20
+            """, {'recherche': f"%{recherche.lower()}%"})
+            return curseur.fetchall()
+def get_tous_utilisateurs():
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("""
+                SELECT id, user_name, courriel, description, image, est_supprime
+                FROM utilisateur
+                WHERE est_supprime = 0
+                ORDER BY user_name ASC
+            """)
+            return curseur.fetchall()
+
+def est_utilisateur_admin(id_utilisateur):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+    
+            curseur.execute("SELECT 1 FROM admin WHERE id_utilisateur = %s", (id_utilisateur,))
+            is_admin = curseur.fetchone() is not None
+    return is_admin
+

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from markupsafe import escape
 import bd
 
 message_bp = Blueprint("message", __name__)
@@ -27,11 +28,28 @@ def conversation(autre_id):
         flash("Veuillez vous connecter pour envoyer un message.", "warning")
         return redirect(url_for('compte.connexion'))
 
+    if user_id == autre_id:
+        flash("Impossible d'ouvrir une conversation avec vous-même.", "warning")
+        return redirect(url_for('message.liste_conversations'))
+
+    if not bd.get_utilisateur_par_id(autre_id):
+        flash("Utilisateur introuvable.", "error")
+        return redirect(url_for('message.liste_conversations'))
+
     if request.method == "POST":
-        contenu = request.form.get("contenu")
-        if contenu:
-            bd.envoyer_message_prive(user_id, autre_id, contenu)
+        contenu = request.form.get("contenu", "").strip()
+
+        if not contenu:
+            flash("Le message ne peut pas être vide.", "error")
             return redirect(url_for("message.conversation", autre_id=autre_id))
+
+        if len(contenu) > 2000:
+            flash("Le message est trop long (maximum 2000 caractères).", "error")
+            return redirect(url_for("message.conversation", autre_id=autre_id))
+
+        contenu = escape(contenu)
+        bd.envoyer_message_prive(user_id, autre_id, contenu)
+        return redirect(url_for("message.conversation", autre_id=autre_id))
 
     messages = bd.obtenir_messages_prives(user_id, autre_id)
     utilisateurs_ids = {msg['expediteur_id'] for msg in messages}
