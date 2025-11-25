@@ -71,15 +71,3 @@ def autocomplete():
     results = [sujet['titre'] for sujet in get_objects() if query in sujet['titre'].lower()]
     return jsonify(results[:5])
 
-@bp_coach.route("/autocomplete_coach")
-def autocomplete_coach():
-    query = request.args.get("query", "").strip()
-    if not query:
-        return []
-
-    coachs = bd.rechercher_coachs(query)  
-
-    
-    suggestions = [{"id": c["id"], "nom": c["user_name"]} for c in coachs]
-
-    return suggestions

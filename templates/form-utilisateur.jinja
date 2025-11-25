@@ -5,64 +5,81 @@
 {% block content %}
 <div class="container mt-5">
 
-        <div class="container mx-auto mt-5 p-4 rounded"
-     style="max-width: 600px; background-color:beige">
-            <h2>Créer un utilisateur</h2>
-            <form action="{{ url_for('compte.form_utilisateur') }}" method="POST" novalidate>
-                <div class="mb-3">
-                    <label for="user_name" class="form-label">Nom d'utilisateur*</label>
-                    <input type="text" class="form-control" id="user_name" name="user_name" required>
-                    {% if erreurs.user_name %}
-                    <div class="text-danger">{{ erreurs.user_name }}</div>
-                    {% endif %}
-                </div>
+    <div class="container mx-auto mt-5 p-4 rounded" style="max-width: 600px; background-color:beige">
+        <h2>Créer un utilisateur</h2>
+        <form action="{{ url_for('compte.form_utilisateur') }}" method="POST" novalidate>
+            <div class="mb-3">
+                <label for="user_name" class="form-label">Nom d'utilisateur*</label>
+                <input type="text" class="form-control" id="user_name" name="user_name" required>
+                {% if erreurs.user_name %}
+                <div class="text-danger">{{ erreurs.user_name }}</div>
+                {% endif %}
+            </div>
 
-                <div class="mb-3">
-                    <label for="courriel" class="form-label">Courriel*</label>
-                    <input type="email" class="form-control" id="courriel" name="courriel" required>
-                    {% if erreurs.courriel %}
-                    <div class="text-danger">{{ erreurs.courriel }}</div>
-                    {% endif %}
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Jeux préférés</label>
-                    <div class="form-check">
-                        {% for jeu in jeux %}
-                        <div>
-                            <input class="form-check-input" type="checkbox" name="jeux" id="jeu-{{ jeu.id }}"
-                                value="{{ jeu.id }}">
-                            <label class="form-check-label" for="jeu-{{ jeu.id }}">
-                                {{ jeu.nom }}
-                            </label>
-                        </div>
-                        {% endfor %}
+            <div class="mb-3">
+                <label for="courriel" class="form-label">Courriel*</label>
+                <input type="email" class="form-control" id="courriel" name="courriel" required>
+                {% if erreurs.courriel %}
+                <div class="text-danger">{{ erreurs.courriel }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Jeux préférés</label>
+                <div class="form-check">
+                    {% for jeu in jeux %}
+                    <div>
+                        <input class="form-check-input" type="checkbox" name="jeux" id="jeu-{{ jeu.id }}"
+                            value="{{ jeu.id }}">
+                        <label class="form-check-label" for="jeu-{{ jeu.id }}">
+                            {{ jeu.nom }}
+                        </label>
                     </div>
+                    {% endfor %}
                 </div>
-
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Choisir un avatar</label>
+                <div class="avatar-gallery" id="avatar-gallery">
+                    {% for fichier in images_profiles %}
+                    <img src="{{ url_for('static', filename=fichier) }}" alt="avatar"
+                        class="avatar-option {% if user and user.image == fichier %}selected{% endif %}"
+                        data-value="{{ fichier }}">
+                    {% endfor %}
                 </div>
+                <input type="hidden" name="image" id="selected-avatar" value="{{ user.image if user and user.image }}">
+            </div>
 
-                <div class="mb-3">
-                    <label for="mdp" class="form-label">Mot de passe*</label>
-                    <input type="password" class="form-control" id="mdp" name="mdp" required>
-                    {% if erreurs.mdp %}
-                    <div class="text-danger">{{ erreurs.mdp }}</div>
-                    {% endif %}
+            <div class="mb-3">
+                <label for="mdp" class="form-label">Mot de passe*</label>
+                <input type="password" class="form-control" id="mdp" name="mdp" required>
+                {% if erreurs.mdp %}
+                <div class="text-danger">{{ erreurs.mdp }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="mdp_confirmation" class="form-label">Confirmer le mot de passe*</label>
+                <input type="password" class="form-control" id="mdp_confirmation" name="mdp_confirmation" required>
+                {% if erreurs.mdp_confirmation %}
+                <div class="text-danger">{{ erreurs.mdp_confirmation }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="est_coach" name="est_coach" value="1">
+                    <label class="form-check-label" for="est_coach">
+                        Je suis un coach
+                    </label>
                 </div>
+            </div>
+            {% if erreurs.is_coach %}
+            <div class="text-danger">{{ erreurs.est_coach }}</div>
+            {% endif %}
 
-                <div class="mb-3">
-                    <label for="mdp_confirmation" class="form-label">Confirmer le mot de passe*</label>
-                    <input type="password" class="form-control" id="mdp_confirmation" name="mdp_confirmation" required>
-                    {% if erreurs.mdp_confirmation %}
-                    <div class="text-danger">{{ erreurs.mdp_confirmation }}</div>
-                    {% endif %}
-                </div>
 
-                <button type="submit" class="btn btn-primary">Créer utilisateur</button>
-            </form>
-        </div>
+            <button type="submit" class="btn btn-primary">Créer utilisateur</button>
+        </form>
+    </div>
 
 </div>
 {% endblock %}
