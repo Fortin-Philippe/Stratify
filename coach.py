@@ -3,7 +3,7 @@ import bd
 
 bp_coach = Blueprint('coach', __name__)
 
-@bp_coach.route('/coachs')
+@bp_coach.route('/entraineurs')
 def liste_coachs():
     if not session.get("user_id"):
         flash("Vous devez être connecté pour voir les coachs.", "warning")
