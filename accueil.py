@@ -68,8 +68,8 @@ NOMS_NIVEAUX = {
 def choisir_jeu():
     """Affiche la page de sélection de jeu"""
     jeu_selectionne = request.cookies.get('jeu_selectionne')
-    return render_template('accueil.jinja', 
-                         jeux=JEUX, 
+    return render_template('accueil.jinja',
+                         jeux=JEUX,
                          jeu_selectionne=jeu_selectionne)
 
 
@@ -78,13 +78,13 @@ def selectionner_jeu(jeu_id):
     """Enregistre le jeu sélectionné dans un cookie"""
     if jeu_id not in JEUX:
         return redirect(url_for('accueil.choisir_jeu'))
-    
-    
+
+
     response = make_response(redirect(url_for('accueil.choisir_niveau')))
-    
-    
+
+
     response.set_cookie('jeu_selectionne', jeu_id, max_age=60*60*24*7)
-    
+
     return response
 
 
@@ -93,18 +93,18 @@ def selectionner_jeu(jeu_id):
 @bp.route('/niveau/selection')
 def choisir_niveau():
     """Affiche la page de sélection de niveau en fonction du jeu"""
-    
+
     jeu_selectionne = request.cookies.get('jeu_selectionne')
-    
+
     if not jeu_selectionne or jeu_selectionne not in NIVEAUX:
         return redirect(url_for('accueil.choisir_jeu'))
-    
-    
+
+
     niveau_selectionne = request.cookies.get('niveau_selectionne')
-    
+
     niveaux = NIVEAUX[jeu_selectionne]
     nom_jeu = JEUX[jeu_selectionne]['nom']
-    
+
     return render_template('accueil.jinja',
                          niveaux=niveaux,
                          jeu_selectionne=jeu_selectionne,
@@ -116,16 +116,16 @@ def choisir_niveau():
 def selectionner_niveau(niveau_id):
     """Enregistre le niveau sélectionné dans un cookie"""
     jeu_selectionne = request.cookies.get('jeu_selectionne')
-    
+
     if not jeu_selectionne:
         return redirect(url_for('accueil.choisir_jeu'))
-    
-    
+
+
     response = make_response(redirect(url_for('accueil.confirmation')))
-    
-    
+
+
     response.set_cookie('niveau_selectionne', niveau_id, max_age=60*60*24*7)
-    
+
     return response
 
 
@@ -136,10 +136,10 @@ def confirmation():
     """Redirige vers le forum après confirmation des choix"""
     jeu_selectionne = request.cookies.get('jeu_selectionne')
     niveau_selectionne = request.cookies.get('niveau_selectionne')
-    
+
     if not jeu_selectionne or not niveau_selectionne:
         return redirect(url_for('accueil.choisir_jeu'))
-    
+
     return redirect(url_for('forum.index'))
 
 

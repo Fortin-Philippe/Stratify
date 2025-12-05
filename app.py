@@ -70,4 +70,25 @@ def autocomplete():
     query = request.args.get("query", "").lower()
     results = [sujet['titre'] for sujet in get_objects() if query in sujet['titre'].lower()]
     return jsonify(results[:5])
+def render_error(code, message):
+    return render_template("erreur.jinja", code=code, message=message), code
 
+@app.errorhandler(404)
+def not_found(e):
+    return render_error(404, "Page non trouvée")
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_error(500, "Erreur interne du serveur")
+
+@app.errorhandler(403)
+def forbidden(e):
+    return render_error(403, "Accès interdit")
+
+@app.errorhandler(401)
+def unauthorized(e):
+    return render_error(401, "Authentification requise")
+
+@app.errorhandler(400)
+def bad_request(e):
+    return render_error(400, "Requête invalide")
