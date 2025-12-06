@@ -39,8 +39,22 @@ def form_utilisateur():
         if mdp != mdp_confirmation:
             erreurs['mdp_confirmation'] = "Les mots de passe ne correspondent pas."
         image_path = request.form.get("image", None)
+        utilisateur_nom = bd.get_utilisateur_par_username(user_name)
+        if utilisateur_nom:
+            erreurs['user_name'] = "Ce nom d'utilisateur est déjà pris."
+
+
+        utilisateur_mail = bd.get_utilisateur_par_courriel(courriel)
+        if utilisateur_mail:
+            erreurs['courriel'] = "Ce courriel est déjà utilisé."
+
         if erreurs:
-            return render_template('form-utilisateur.jinja', erreurs=erreurs)
+            return render_template(
+                'form-utilisateur.jinja',
+                erreurs=erreurs,
+                jeux=jeux,
+                images_profiles=images_profiles
+            )
 
 
         utilisateur = {

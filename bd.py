@@ -481,3 +481,11 @@ def est_utilisateur_admin(id_utilisateur):
             is_admin = curseur.fetchone() is not None
     return is_admin
 
+def get_utilisateur_par_courriel(courriel):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute(
+                "SELECT * FROM utilisateur WHERE courriel = %(courriel)s",
+                {"courriel": courriel}
+            )
+            return curseur.fetchone()
