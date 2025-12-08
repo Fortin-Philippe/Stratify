@@ -7,14 +7,65 @@
         <h3 class="titre text-start" style="font-size:1.2rem; font-weight:bold;">
             Rechercher un utilisateur
         </h3>
-        <form action="{{ url_for('compte.rechercher_utilisateur') }}" method="GET" class="d-inline-block">
-            <input type="text" name="q" placeholder="Nom d'utilisateur ou courriel" class="form-control d-inline-block"
-                style="width: 250px;">
+        <form action="{{ url_for('compte.rechercher_utilisateur') }}" method="GET" class="d-inline-block position-relative">
+            <input type="text" 
+                   id="user-search-input" 
+                   name="q" 
+                   placeholder="Nom d'utilisateur ou courriel" 
+                   class="form-control d-inline-block"
+                   style="width: 250px;"
+                   autocomplete="off">
             <button type="submit" class="btn btn-primary">Rechercher</button>
+            <div id="user-suggestions-box" class="suggestions-box"></div>
         </form>
     </div>
     <h2 class="titre">Choix de votre jeu</h2>
-    {% endif %}
+    
+    <script>
+    const userInput = document.getElementById("user-search-input");
+    const userSuggestionsBox = document.getElementById("user-suggestions-box");
+
+    userInput.addEventListener("input", async () => {
+        const query = userInput.value.trim();
+        if (!query) {
+            userSuggestionsBox.innerHTML = "";
+            userSuggestionsBox.style.display = "none";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/compte/autocomplete_utilisateur?query=${encodeURIComponent(query)}`);
+            const suggestions = await response.json();
+
+            if (suggestions.length === 0) {
+                userSuggestionsBox.innerHTML = `<div class="no-result">Aucun utilisateur trouvé</div>`;
+            } else {
+                userSuggestionsBox.innerHTML = suggestions
+                    .map(u => `<div data-id="${u.id}">${u.nom}</div>`).join("");
+            }
+
+            userSuggestionsBox.style.display = "block";
+
+            Array.from(userSuggestionsBox.children).forEach(child => {
+                child.addEventListener("click", () => {
+                    userInput.value = child.textContent;
+                    userSuggestionsBox.innerHTML = "";
+                    userSuggestionsBox.style.display = "none";
+                    window.location.href = `/compte/rechercher_utilisateur?q=${encodeURIComponent(child.textContent)}`;
+                });
+            });
+        } catch(err) {
+            console.error(err);
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!userSuggestionsBox.contains(e.target) && e.target !== userInput) {
+            userSuggestionsBox.style.display = "none";
+        }
+    });
+    </script>
+{% endif %}
     <div class="card-container">
         <a href="{{ url_for('accueil.selectionner_jeu', jeu_id='lol') }}"
             class="card {% if jeu_selectionne == 'lol' %}selected{% endif %}">
