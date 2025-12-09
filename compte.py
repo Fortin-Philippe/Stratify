@@ -3,7 +3,7 @@ import hashlib
 
 import os
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 import bd
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "static", "img", "profiles")
@@ -83,38 +83,37 @@ def form_utilisateur():
 
     return render_template("form-utilisateur.jinja", erreurs=erreurs, jeux=jeux, images_profiles=images_profiles)
 
-
-
 @bp_compte.route('/connexion', methods=['GET', 'POST'])
 def connexion():
     erreurs = {}
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if request.method == 'POST':
-        courriel = request.form.get('courriel', '').strip()
-        mdp = request.form.get('mdp', '').strip()
+
+        courriel = request.form['courriel'].strip()
+        mdp = request.form['mdp'].strip()
+
 
         if is_ajax:
             if not courriel or not mdp:
-                return jsonify({
+                return {
                     "success": False,
                     "erreurs": {"connexion": "Veuillez remplir tous les champs."}
-                }), 400
+                }, 400
 
             if not re.match(r"[^@]+@[^@]+\.[^@]+", courriel):
-                return jsonify({
+                return {
                     "success": False,
                     "erreurs": {"courriel": "Veuillez entrer un courriel valide."}
-                }), 400
+                }, 400
 
             utilisateur = bd.connecter_utilisateur(courriel, hacher_mdp(mdp))
-            
             if utilisateur:
                 if utilisateur.get('est_supprime', 0) == 1:
-                    return jsonify({
+                    return {
                         "success": False,
                         "erreurs": {"connexion": "Ce compte est désactivé."}
-                    }), 400
+                    }, 400
 
                 session['user_id'] = utilisateur['id']
                 session['user_name'] = utilisateur['user_name']
@@ -128,18 +127,19 @@ def connexion():
                     bd.set_est_coach(utilisateur['id'], True)
                     session['est_coach'] = 1
 
-                return jsonify({
+                return {
                     "success": True,
                     "message": "Vous êtes connecté !",
                     "redirect": url_for('accueil.choisir_jeu')
-                }), 200
+                }, 200
 
-            return jsonify({
+            return {
                 "success": False,
                 "erreurs": {"connexion": "Courriel ou mot de passe incorrect."}
-            }), 400
+            }, 400
 
     return render_template('connexion.jinja', erreurs=erreurs)
+
 
 @bp_compte.route('/profile')
 def profile():
@@ -261,9 +261,7 @@ def supprimer_utilisateur():
     session.clear()
     flash("Compte supprimé avec succès.", "success")
     return redirect(url_for('accueil.choisir_jeu'))
-
-
-@bp_compte.route('/rechercher-utilisateurs', methods=['GET'])
+@bp_compte.route('/rechercher-utilisateur', methods=['GET'])
 def rechercher_utilisateur():
     recherche = request.args.get('q', '').strip()
     resultats = []
@@ -274,16 +272,3 @@ def rechercher_utilisateur():
     if 'user_id' in session:
         resultats = [u for u in resultats if u['id'] != session['user_id']]
     return render_template('recherche_joueur.jinja', recherche=recherche, resultats=resultats)
-
-@bp_compte.route('/autocomplete_utilisateur')
-def autocomplete_utilisateur():
-    query = request.args.get('query', '').strip()
-    
-    if not query:
-        return []
-    
-    utilisateurs = bd.rechercher_utilisateur(query)
-    
-    suggestions = [{"id": u["id"], "nom": u["user_name"]} for u in utilisateurs]
-    
-    return suggestions
