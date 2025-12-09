@@ -424,7 +424,7 @@ def obtenir_tous_admin():
                     u.image,
                     u.est_supprime
                 FROM utilisateur u
-                INNER JOIN admin a ON u.id = a.id
+                INNER JOIN admin a ON u.id = a.id_utilisateur
                 WHERE u.est_supprime = 0
                 ORDER BY u.user_name ASC
             """)
