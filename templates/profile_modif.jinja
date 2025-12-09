@@ -15,7 +15,7 @@
         <div class="mb-3">
             <label class="form-label" style="color: rgb(105,240,174);">Description</label>
             <textarea class="form-control" name="description" rows="3" maxlength="300">{{ user.description }}</textarea>
-            <small class="form-text text-light">{{ user.description|length }}/300 caractères</small>
+            <small class="form-text text-light">{{ (user.description or '')|length }}/300 caractères</small>
         </div>
         <div class="mb-3">
             <label class="form-label" style="color: rgb(105,240,174);">Avatar</label>
