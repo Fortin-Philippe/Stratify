@@ -76,7 +76,9 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>Aucune conversation trouvée.</p>
+        <div class="alert alert-info text-center">
+        Aucune conversation pour le moment.
+    </div>
     {% endif %}
 </div>
 {% endblock %}
