@@ -168,6 +168,7 @@ def obtenir_coachs():
                 FROM utilisateur
                 WHERE est_coach = 1
                   AND id NOT IN (SELECT id_utilisateur FROM admin)
+                  AND est_supprime = 0
                 ORDER BY user_name ASC
                 """
             )
@@ -406,7 +407,7 @@ def est_admin(user_id):
                 (user_id,)
             )
             return curseur.fetchone() is not None
-
+        
 def obtenir_tous_admin():
     """
     Retourne tous les admin avec leurs informations utilisateur.
