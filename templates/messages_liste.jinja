@@ -9,26 +9,27 @@
     </div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="dropdown">
-            <button class="btn btn-outline-success dropdown-toggle" 
+            <button class="btn-contact-admin" 
                     type="button" 
                     id="dropdownAdmin" 
                     data-bs-toggle="dropdown" 
                     aria-expanded="false">
-                <i class="bi bi-headset"></i> Contacter un admin
+                <i class="bi bi-headset"></i>
+                <span>Contacter un admin</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAdmin">
                 {% if admins and admins|length > 0 %}
                     {% for admin in admins %}
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" 
+                            <a class="dropdown-item" 
                                href="{{ url_for('message.conversation', autre_id=admin.id) }}">
                                 {% if admin.image %}
                                     <img src="{{ url_for('static', filename=admin.image) }}" 
-                                         class="rounded-circle me-2" width="30" height="30" 
+                                         class="rounded-circle" width="30" height="30" 
                                          alt="{{ admin.user_name }}">
                                 {% else %}
                                     <img src="{{ url_for('static', filename='img/profiles/default.webp') }}" 
-                                         class="rounded-circle me-2" width="30" height="30" 
+                                         class="rounded-circle" width="30" height="30" 
                                          alt="Default">
                                 {% endif %}
                                 <span>{{ admin.user_name }}{% if admin.id == session.user_id %} (moi){% endif %}</span>

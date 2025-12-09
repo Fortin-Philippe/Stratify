@@ -8,9 +8,22 @@
             <h1>Forum {{ nom_jeu }}</h1>
             <p class="forum-subtitle">Niveau : {{ nom_niveau }}</p>
         </div>
-         <a href="{{ url_for('forum.nouvelle_discussion') }}" class="btn btn-primary btn-large">
-                    <span class="icon">+</span> Créer une discussion
-                </a>
+         {% if session.get('user_name') %}
+    <form method="POST" class="message-form" novalidate>
+        <div class="form-group">
+            <label for="contenu">Votre réponse</label>
+            <textarea id="contenu" name="contenu" required rows="5" 
+                      placeholder="Écrivez votre réponse..."></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Poster la réponse</button>
+    </form>
+{% else %}
+    <div class="login-prompt">
+        <p>Vous devez être connecté pour répondre à cette discussion.</p>
+        <a href="{{ url_for('compte.connexion') }}" class="btn btn-primary">Se connecter</a>
+    </div>
+{% endif %}
     </div>
 
     <div class="forum-filters">

@@ -2,6 +2,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const gallery = document.getElementById("avatar-gallery");
     const hiddenInput = document.getElementById("selected-avatar");
 
+    
+    if (!gallery || !hiddenInput) {
+        return; 
+    }
+
     gallery.addEventListener("click", function(e) {
         if (e.target.classList.contains("avatar-option")) {
             if (e.target.classList.contains("selected")) {
