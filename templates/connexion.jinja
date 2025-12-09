@@ -29,7 +29,6 @@
                 </div>
             </form>
 
-
             <div class="card-footer text-center">
                 Pas encore inscrit ? <a href="{{ url_for('compte.form_utilisateur') }}">Créer un compte</a>
             </div>
@@ -37,78 +36,110 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-
-
-
+{% block scripts %}
 <script>
-document.getElementById('formConnexion').addEventListener('submit', function(e) {
-    e.preventDefault();
+console.log('Script de connexion chargé');
 
-    var form = document.getElementById('formConnexion');
-    var btn = form.querySelector('button[type="submit"]');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM chargé');
+    
+    const form = document.getElementById('formConnexion');
+    console.log('Formulaire trouvé:', form);
+    
+    if (!form) {
+        console.error('Formulaire de connexion introuvable');
+        return;
+    }
 
-    document.querySelectorAll('.text-danger').forEach(e => e.remove());
+    form.addEventListener('submit', function(e) {
+        console.log('Formulaire soumis');
+        e.preventDefault();
 
-    btn.disabled = true;
-    btn.textContent = 'Connexion...';
+        const btn = form.querySelector('button[type="submit"]');
+        
+        if (btn.disabled) {
+            console.log('Bouton déjà désactivé');
+            return;
+        }
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', form.action, true);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        document.querySelectorAll('.text-danger').forEach(el => el.remove());
 
-    xhr.onload = function() {
-        var data;
+        btn.disabled = true;
+        btn.textContent = 'Connexion...';
 
-        try {
-            data = JSON.parse(xhr.responseText);
-        } catch (e) {
-            console.error("Réponse serveur non JSON :", xhr.responseText);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', form.action, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        xhr.onload = function() {
+            console.log('Status:', xhr.status);
+            console.log('Response:', xhr.responseText);
+            
+            let data;
+
+            try {
+                data = JSON.parse(xhr.responseText);
+                console.log('Data:', data);
+            } catch (e) {
+                console.error("Erreur JSON:", e);
+                
+                const eDiv = document.createElement('div');
+                eDiv.className = 'text-danger';
+                eDiv.textContent = 'Erreur serveur';
+                form.insertBefore(eDiv, form.querySelector('.d-grid'));
+                
+                btn.disabled = false;
+                btn.textContent = 'Se connecter';
+                return;
+            }
+
+            if (xhr.status === 200 && data.success) {
+                console.log('Succès! Redirection vers:', data.redirect);
+                
+                
+                window.location.href = data.redirect;
+                return;
+            }
+
+            console.log('Erreurs:', data.erreurs);
+            if (data.erreurs) {
+                if (data.erreurs.connexion) {
+                    const eDiv = document.createElement('div');
+                    eDiv.className = 'text-danger';
+                    eDiv.textContent = data.erreurs.connexion;
+                    form.insertBefore(eDiv, form.querySelector('.d-grid'));
+                }
+
+                if (data.erreurs.courriel) {
+                    const input = document.getElementById('courriel');
+                    const eDiv = document.createElement('div');
+                    eDiv.className = 'text-danger';
+                    eDiv.textContent = data.erreurs.courriel;
+                    input.parentNode.appendChild(eDiv);
+                }
+            }
+
             btn.disabled = false;
             btn.textContent = 'Se connecter';
-            return;
-        }
+        };
 
-        if (xhr.status === 200 && data.success) {
-            var msg = document.createElement('div');
-            msg.className = 'alert alert-success';
-            msg.textContent = data.message;
-            form.parentNode.insertBefore(msg, form);
+        xhr.onerror = function() {
+            console.error('Erreur réseau');
+            
+            const eDiv = document.createElement('div');
+            eDiv.className = 'text-danger';
+            eDiv.textContent = 'Erreur de connexion';
+            form.insertBefore(eDiv, form.querySelector('.d-grid'));
+            
+            btn.disabled = false;
+            btn.textContent = 'Se connecter';
+        };
 
-            setTimeout(() => {
-                window.location.href = data.redirect;
-            }, 1000);
-            return;
-        }
-
-        if (data.erreurs) {
-            if (data.erreurs.connexion) {
-                var eDiv = document.createElement('div');
-                eDiv.className = 'text-danger';
-                eDiv.textContent = data.erreurs.connexion;
-                form.insertBefore(eDiv, form.querySelector('.d-grid'));
-            }
-
-            if (data.erreurs.courriel) {
-                var input = document.getElementById('courriel');
-                var eDiv = document.createElement('div');
-                eDiv.className = 'text-danger';
-                eDiv.textContent = data.erreurs.courriel;
-                input.parentNode.appendChild(eDiv);
-            }
-        }
-
-        btn.disabled = false;
-        btn.textContent = 'Se connecter';
-    };
-
-    xhr.onerror = function() {
-        console.log('Erreur réseau');
-        btn.disabled = false;
-        btn.textContent = 'Se connecter';
-    };
-
-    xhr.send(new FormData(form));
+        console.log('Envoi...');
+        xhr.send(new FormData(form));
+    });
 });
 </script>
 {% endblock %}
