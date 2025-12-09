@@ -98,8 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (xhr.status === 200 && data.success) {
                 console.log('Succès! Redirection vers:', data.redirect);
                 
-                // Redirection immédiate sans afficher de message
-                // Le message sera affiché par Flask flash après la redirection
+                
                 window.location.href = data.redirect;
                 return;
             }

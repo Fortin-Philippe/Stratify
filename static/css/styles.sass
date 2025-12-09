@@ -1158,3 +1158,45 @@ header
       &:hover 
         background: transparent
 
+.avatar-gallery
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr))
+  gap: 15px
+  padding: 15px
+  background: rgba($white, 0.05)
+  border-radius: 10px
+  border: 2px solid rgba($green-main, 0.3)
+  max-height: 300px
+  overflow-y: auto
+
+.avatar-option
+  width: 80px
+  height: 80px
+  border-radius: 50%
+  object-fit: cover
+  cursor: pointer
+  border: 3px solid transparent
+  transition: all 0.3s ease
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2)
+
+  &:hover
+    transform: scale(1.1)
+    border-color: rgba($green-main, 0.5)
+    box-shadow: 0 4px 12px rgba($green-main, 0.3)
+
+  &.selected
+    border-color: $green-main
+    box-shadow: 0 0 20px rgba($green-main, 0.6)
+    transform: scale(1.15)
+    position: relative
+
+    &::after
+      content: '✓'
+      position: absolute
+      top: 50%
+      left: 50%
+      transform: translate(-50%, -50%)
+      font-size: 2em
+      color: $white
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5)
+      pointer-events: none

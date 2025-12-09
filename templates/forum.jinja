@@ -8,22 +8,18 @@
             <h1>Forum {{ nom_jeu }}</h1>
             <p class="forum-subtitle">Niveau : {{ nom_niveau }}</p>
         </div>
-         {% if session.get('user_name') %}
-    <form method="POST" class="message-form" novalidate>
-        <div class="form-group">
-            <label for="contenu">Votre réponse</label>
-            <textarea id="contenu" name="contenu" required rows="5" 
-                      placeholder="Écrivez votre réponse..."></textarea>
-        </div>
         
-        <button type="submit" class="btn btn-primary">Poster la réponse</button>
-    </form>
-{% else %}
-    <div class="login-prompt">
-        <p>Vous devez être connecté pour répondre à cette discussion.</p>
-        <a href="{{ url_for('compte.connexion') }}" class="btn btn-primary">Se connecter</a>
-    </div>
-{% endif %}
+        {% if session.get('user_name') %}
+            <a href="{{ url_for('forum.nouvelle_discussion') }}" class="btn-new-topic">
+                <span class="icon">+</span>
+                Nouvelle discussion
+            </a>
+        {% else %}
+            <a href="{{ url_for('compte.connexion') }}" class="btn-new-topic">
+                <span class="icon">🔒</span>
+                Se connecter pour poster
+            </a>
+        {% endif %}
     </div>
 
     <div class="forum-filters">
@@ -117,6 +113,12 @@
                         <a href="{{ url_for('forum.index') }}" class="btn btn-secondary" style="margin-top: 15px;">Réinitialiser les filtres</a>
                     {% else %}
                         Soyez le premier à lancer une discussion dans cette catégorie !
+                        {% if session.get('user_name') %}
+                            <br>
+                            <a href="{{ url_for('forum.nouvelle_discussion') }}" class="btn btn-primary btn-large" style="margin-top: 20px;">
+                                Créer une discussion
+                            </a>
+                        {% endif %}
                     {% endif %}
                 </p>
             </div>
@@ -131,6 +133,7 @@
     </div>
     {% endif %}
 </div>
+
 <script>
 const input = document.getElementById("search-input");
 const suggestionsBox = document.getElementById("suggestions-box");
