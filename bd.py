@@ -159,14 +159,17 @@ def ajouter_message(message):
 
 
 def obtenir_coachs():
-    """Récupère tous les utilisateurs qui sont des coachs"""
+    """Récupère tous les utilisateurs coachs mais exclut ceux qui sont admin"""
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute(
-                """SELECT id, user_name, courriel, image, description, est_coach, est_supprime
-                   FROM utilisateur
-                   WHERE est_coach = 1
-                   ORDER BY user_name ASC"""
+                """
+                SELECT id, user_name, courriel, image, description, est_coach, est_supprime
+                FROM utilisateur
+                WHERE est_coach = 1
+                  AND id NOT IN (SELECT id_utilisateur FROM admin)
+                ORDER BY user_name ASC
+                """
             )
             return curseur.fetchall()
         
