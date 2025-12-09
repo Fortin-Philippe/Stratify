@@ -8,7 +8,7 @@
         <div class="col-12 col-md-10 col-lg-8 d-flex flex-column border rounded bg-dark text-light">
 
             <div class="py-3 border-bottom text-center">
-                <h4 class="mb-0 text-white">Conversation avec {% if autre_user.archive %}
+                <h4 class="mb-0 text-white">Conversation avec {% if autre_user.est_supprime %}
                                 Compte supprimé
                                 {% else %}
                                 {{ autre_user.user_name }}
@@ -23,7 +23,7 @@
                         class="p-2 rounded {% if msg.expediteur_id == session.user_id %}bg-success text-white{% else %}bg-light text-dark{% endif %} w-75">
                         <div>
                             <strong>
-                                {% if utilisateurs[msg.expediteur_id].archive %}
+                                {% if utilisateurs[msg.expediteur_id].est_supprime %}
                                 Compte supprimé
                                 {% else %}
                                 {{ msg.expediteur_nom }}
