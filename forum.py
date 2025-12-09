@@ -105,7 +105,7 @@ def nouvelle_discussion():
     niveau_selectionne = request.cookies.get('niveau_selectionne')
     
     if not jeu_selectionne or not niveau_selectionne:
-        flash('Sélection de jeu invalide', 'error')
+        flash('Sélection de jeu invalide', 'danger')
         return redirect(url_for('accueil.choisir_jeu'))
 
     if request.method == 'GET':
@@ -125,7 +125,7 @@ def nouvelle_discussion():
     categorie = request.form.get('categorie', 'discussion')
     
     if not titre or not contenu or not auteur:
-        flash('Tous les champs sont requis', 'error')
+        flash('Tous les champs sont requis', 'danger')
         return redirect(url_for('forum.nouvelle_discussion'))
     
     discussion_data = {
@@ -149,14 +149,14 @@ def voir_discussion(discussion_id):
     discussion = bd.obtenir_discussion(discussion_id)
     
     if not discussion:
-        flash('Discussion introuvable', 'error')
+        flash('Discussion introuvable', 'danger')
         return redirect(url_for('forum.index'))
 
     bd.incrementer_vues(discussion_id)
 
     if request.method == 'POST':
         if not session.get('user_id'):
-            flash("Vous devez être connecté pour répondre.", "error")
+            flash("Vous devez être connecté pour répondre.", "danger")
             return redirect(url_for('compte.connexion'))
 
         contenu = request.form.get('contenu', '').strip()
@@ -164,11 +164,11 @@ def voir_discussion(discussion_id):
         auteur_id = session.get('user_id')
 
         if not contenu:
-            flash("Le contenu du message ne peut pas être vide.", "error")
+            flash("Le contenu du message ne peut pas être vide.", "danger")
             return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
 
         if len(contenu) > 2000:
-            flash("Le message est trop long (maximum 2000 caractères).", "error")
+            flash("Le message est trop long (maximum 2000 caractères).", "danger")
             return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
 
         contenu = escape(contenu)
@@ -198,11 +198,11 @@ def voir_discussion(discussion_id):
 def supprimer_discussion(discussion_id):
     """Supprimer une discussion (réservé aux coachs)"""
     if not session.get('user_name'):
-        flash('Vous devez être connecté', 'error')
+        flash('Vous devez être connecté', 'danger')
         return redirect(url_for('compte.connexion'))
     
     if not session.get('est_coach'):
-        flash('Vous n\'avez pas les permissions pour supprimer cette discussion', 'error')
+        flash('Vous n\'avez pas les permissions pour supprimer cette discussion', 'danger')
         return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
     
     discussion = bd.obtenir_discussion(discussion_id)
@@ -211,7 +211,7 @@ def supprimer_discussion(discussion_id):
         flash('Discussion supprimée avec succès', 'success')
         return redirect(url_for('forum.index'))
     else:
-        flash('Discussion introuvable', 'error')
+        flash('Discussion introuvable', 'danger')
         return redirect(url_for('forum.index'))
 
 
@@ -219,11 +219,11 @@ def supprimer_discussion(discussion_id):
 def supprimer_message(message_id):
     """Supprimer un message (réservé aux coachs)"""
     if not session.get('user_name'):
-        flash('Vous devez être connecté', 'error')
+        flash('Vous devez être connecté', 'danger')
         return redirect(url_for('compte.connexion'))
     
     if not session.get('est_coach'):
-        flash('Vous n\'avez pas les permissions pour supprimer ce message', 'error')
+        flash('Vous n\'avez pas les permissions pour supprimer ce message', 'danger')
         return redirect(url_for('forum.index'))
     
     message = bd.obtenir_message(message_id)
@@ -233,5 +233,5 @@ def supprimer_message(message_id):
         flash('Message supprimé avec succès', 'success')
         return redirect(url_for('forum.voir_discussion', discussion_id=discussion_id))
     else:
-        flash('Message introuvable', 'error')
+        flash('Message introuvable', 'danger')
         return redirect(url_for('forum.index'))
