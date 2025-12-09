@@ -8,9 +8,17 @@
             <h1>Forum {{ nom_jeu }}</h1>
             <p class="forum-subtitle">Niveau : {{ nom_niveau }}</p>
         </div>
-         <a href="{{ url_for('forum.nouvelle_discussion') }}" class="btn btn-primary btn-large">
-                    <span class="icon">+</span> Créer une discussion
-                </a>
+         {% if session.get('user_name') %}
+            <a href="{{ url_for('forum.nouvelle_discussion') }}" class="btn-new-topic">
+                <span class="icon">+</span>
+                Nouvelle discussion
+            </a>
+        {% else %}
+            <a href="{{ url_for('compte.connexion') }}" class="btn-new-topic">
+                <span class="icon">🔒</span>
+                Se connecter pour poster
+            </a>
+        {% endif %}
     </div>
 
     <div class="forum-filters">
