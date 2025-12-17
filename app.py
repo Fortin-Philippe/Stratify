@@ -28,7 +28,7 @@ app.register_blueprint(message_bp)
 
 @app.route('/')
 def home():
-        return render_template("accueil.jinja")
+    return render_template("accueil.jinja")
 
 @app.route('/creer-utilisateur', methods=['GET', 'POST'])
 def form_utilisateur():
@@ -51,7 +51,7 @@ def form_utilisateur():
 
         return redirect(url_for('home'))
     else:
-         return render_template("form-utilisateur.jinja")
+        return render_template("form-utilisateur.jinja")
 
 @app.context_processor
 def injecter_nb_notifications():
@@ -74,21 +74,21 @@ def render_error(code, message):
     return render_template("erreur.jinja", code=code, message=message), code
 
 @app.errorhandler(404)
-def not_found(e):
+def not_found():
     return render_error(404, "Page non trouvée")
 
 @app.errorhandler(500)
-def server_error(e):
+def server_error():
     return render_error(500, "Erreur interne du serveur")
 
 @app.errorhandler(403)
-def forbidden(e):
+def forbidden():
     return render_error(403, "Accès interdit")
 
 @app.errorhandler(401)
-def unauthorized(e):
+def unauthorized():
     return render_error(401, "Authentification requise")
 
 @app.errorhandler(400)
-def bad_request(e):
+def bad_request():
     return render_error(400, "Requête invalide")
