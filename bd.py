@@ -16,7 +16,7 @@ def creer_connexion():
         database=os.getenv('BD_NOM_SCHEMA'),
         raise_on_warnings=True
     )
-    
+
     conn.get_curseur = types.MethodType(get_curseur, conn)
     try:
         yield conn
@@ -173,7 +173,7 @@ def obtenir_coachs():
                 """
             )
             return curseur.fetchall()
-        
+
 def rechercher_coachs(nom_partiel):
     """Récupère les coachs dont le nom correspond partiellement à la recherche"""
     nom_partiel = f"%{nom_partiel}%"
@@ -187,7 +187,7 @@ def rechercher_coachs(nom_partiel):
                 (nom_partiel,)
             )
             return curseur.fetchall()
-        
+
 def supprimer_discussion(discussion_id):
     """Supprime une discussion et tous ses messages"""
     with creer_connexion() as conn:
@@ -285,18 +285,6 @@ def envoyer_message_prive(expediteur_id, destinataire_id, contenu):
                     VALUES (%s, %s, %s, FALSE, NOW(), %s)
                 """, (destinataire_id, titre, message, expediteur_id))
 
-def rechercher_coachs(recherche):
-    with creer_connexion() as conn:
-        with conn.get_curseur() as curseur:
-            curseur.execute(
-                """SELECT id, user_name, courriel, image, description, est_coach, est_supprime
-                   FROM utilisateur
-                   WHERE est_coach = 1
-                   AND (LOWER(user_name) LIKE %(recherche)s OR LOWER(courriel) LIKE %(recherche)s)
-                   ORDER BY user_name ASC""",
-                {'recherche': f"%{recherche.lower()}%"}
-            )
-            return curseur.fetchall()
 def ajouter_jeux_utilisateur(user_id, jeux_ids):
     """Associe plusieurs jeux à un utilisateur"""
     with creer_connexion() as conn:
@@ -373,7 +361,36 @@ def marquer_demande_refusee(demande_id):
         with conn.cursor() as curseur:
             curseur.execute("UPDATE demandes_coach SET statut = 'refusee' WHERE id = %s", (demande_id,))
         conn.commit()
+def traiter_demande_et_notifier(demande_id, accepter=True):
+    with creer_connexion() as conn:
+        with conn.get_curseur() as curseur:
+            curseur.execute("SELECT * FROM demandes_coach WHERE id = %s", (demande_id,))
+            demande = curseur.fetchone()
+            if not demande:
+                return False
 
+            statut = 'acceptee' if accepter else 'refusee'
+            curseur.execute(
+                "UPDATE demandes_coach SET statut=%s WHERE id=%s",
+                (statut, demande_id)
+            )
+
+            curseur.execute("DELETE FROM notifications WHERE demande_id=%s", (demande_id,))
+
+            expediteur_id = demande['coach_id']
+            destinataire_id = demande['utilisateur_id']
+            if accepter:
+                contenu = f"Votre demande de coaching a été acceptée par {get_utilisateur_par_id(expediteur_id)['user_name']}."
+            else:
+                contenu = f"Votre demande de coaching a été refusée par {get_utilisateur_par_id(expediteur_id)['user_name']}."
+
+            curseur.execute(
+                """INSERT INTO message_prive (expediteur_id, destinataire_id, contenu, date_envoi)
+                   VALUES (%s, %s, %s, NOW())""",
+                (expediteur_id, destinataire_id, contenu)
+            )
+
+    return True
 def obtenir_coach_par_id(coach_id):
     with creer_connexion() as conn:
         with conn.cursor(dictionary=True) as curseur:
@@ -407,7 +424,7 @@ def est_admin(user_id):
                 (user_id,)
             )
             return curseur.fetchone() is not None
-        
+
 def obtenir_tous_admin():
     """
     Retourne tous les admin avec leurs informations utilisateur.
@@ -415,7 +432,7 @@ def obtenir_tous_admin():
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
             curseur.execute("""
-                SELECT 
+                SELECT
                     u.id,
                     u.user_name,
                     u.courriel,
@@ -428,9 +445,9 @@ def obtenir_tous_admin():
                 WHERE u.est_supprime = 0
                 ORDER BY u.user_name ASC
             """)
-            
+
             return curseur.fetchall()
-        
+
 
 def get_tous_les_utilisateurs():
     with creer_connexion() as conn:
@@ -481,7 +498,7 @@ def get_tous_utilisateurs():
 def est_utilisateur_admin(id_utilisateur):
     with creer_connexion() as conn:
         with conn.get_curseur() as curseur:
-    
+
             curseur.execute("SELECT 1 FROM admin WHERE id_utilisateur = %s", (id_utilisateur,))
             is_admin = curseur.fetchone() is not None
     return is_admin
