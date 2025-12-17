@@ -11,9 +11,9 @@
                 <span class="topic-category category-{{ discussion.categorie }}">
                     {{ discussion.categorie|capitalize }}
                 </span>
-                
+
                 {% if session.get('est_coach') %}
-                <form method="POST" action="{{ url_for('forum.supprimer_discussion', discussion_id=discussion.id) }}" 
+                <form method="POST" action="{{ url_for('forum.supprimer_discussion', discussion_id=discussion.id) }}"
                       onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette discussion ?');" style="margin: 0;">
                     <button type="submit" class="btn-delete" title="Supprimer la discussion">
                         🗑️
@@ -60,9 +60,9 @@
                             <small>{{ message.date_creation.strftime('%d/%m/%Y à %H:%M') if message.date_creation else 'Date inconnue' }}</small>
                         </div>
                     </div>
-                    
+
                     {% if session.get('est_coach') %}
-                    <form method="POST" action="{{ url_for('forum.supprimer_message', message_id=message.id) }}" 
+                    <form method="POST" action="{{ url_for('forum.supprimer_message', message_id=message.id) }}"
                           onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce message ?');" style="margin: 0;">
                         <button type="submit" class="btn-delete-small" title="Supprimer le message">
                             🗑️
@@ -70,7 +70,7 @@
                     </form>
                     {% endif %}
                 </div>
-                
+
                 <div class="post-content">
                     {{ message.contenu }}
                 </div>
@@ -87,11 +87,11 @@
     <form method="POST" class="message-form" novalidate>
         <div class="form-group">
             <label for="contenu">Votre réponse</label>
-            <textarea id="contenu" name="contenu" required rows="5" 
+            <textarea id="contenu" name="contenu" required rows="5"
                       placeholder="Écrivez votre réponse..."></textarea>
         </div>
-        
-        <button type="submit" class="btn btn-primary">Poster la réponse</button>
+
+        <button type="submit" class="btn btn-primary">Envoyer la réponse</button>
     </form>
 {% else %}
     <div class="login-prompt">

@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="forum-container">
-    
+
     <div class="forum-header">
         <div class="forum-title">
             <h1>Forum {{ nom_jeu }}</h1>
@@ -16,35 +16,35 @@
         {% else %}
             <a href="{{ url_for('compte.connexion') }}" class="btn-new-topic">
                 <span class="icon">🔒</span>
-                Se connecter pour poster
+                Se connecter pour publier
             </a>
         {% endif %}
     </div>
 
     <div class="forum-filters">
         <form method="GET" action="{{ url_for('forum.index') }}" class="search-bar">
-            <input type="text" name="search" placeholder="Rechercher un sujet..." 
-                   class="search-input" id="search-input" 
+            <input type="text" name="search" placeholder="Rechercher un sujet..."
+                   class="search-input" id="search-input"
                    value="{{ search_query if search_query else '' }}">
             <input type="hidden" name="filter" value="{{ category_filter if category_filter else 'all' }}">
             <button type="submit" class="btn-search">🔍</button>
             <div id="suggestions-box" class="suggestions-box"></div>
         </form>
-        
-        <div class="filter-buttons"> 
-            <a href="{{ url_for('forum.index', filter='all', search=search_query if search_query else '') }}" 
+
+        <div class="filter-buttons">
+            <a href="{{ url_for('forum.index', filter='all', search=search_query if search_query else '') }}"
                class="filter-btn {% if not category_filter or category_filter == 'all' %}active{% endif %}">
                 Tous
             </a>
-            <a href="{{ url_for('forum.index', filter='question', search=search_query if search_query else '') }}" 
+            <a href="{{ url_for('forum.index', filter='question', search=search_query if search_query else '') }}"
                class="filter-btn {% if category_filter == 'question' %}active{% endif %}">
                 Questions
             </a>
-            <a href="{{ url_for('forum.index', filter='discussion', search=search_query if search_query else '') }}" 
+            <a href="{{ url_for('forum.index', filter='discussion', search=search_query if search_query else '') }}"
                class="filter-btn {% if category_filter == 'discussion' %}active{% endif %}">
                 Discussions
             </a>
-            <a href="{{ url_for('forum.index', filter='guide', search=search_query if search_query else '') }}" 
+            <a href="{{ url_for('forum.index', filter='guide', search=search_query if search_query else '') }}"
                class="filter-btn {% if category_filter == 'guide' %}active{% endif %}">
                 Guides
             </a>
@@ -59,11 +59,11 @@
                     {% if discussion.epingle %}
                     <div class="topic-pin">📌</div>
                     {% endif %}
-                    
+
                     <div class="topic-avatar">
                         <div class="avatar-placeholder">{{ discussion.auteur[0]|upper }}</div>
                     </div>
-                    
+
                     <div class="topic-content">
                         <h3 class="topic-title"style="color:palegreen ;">{{ discussion.titre }}</h3>
                         <div class="topic-meta">
@@ -75,7 +75,7 @@
                         </div>
                         <p class="topic-preview">{{ discussion.contenu[:150] }}{% if discussion.contenu|length > 150 %}...{% endif %}</p>
                     </div>
-                    
+
                     <div class="topic-stats">
                         <div class="stat">
                             <span class="stat-number">{{ discussion.vues }}</span>
